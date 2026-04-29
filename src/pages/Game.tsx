@@ -169,7 +169,15 @@ export function Game() {
   const currentRoundData = rounds[room.currentRound] ?? null;
   const arenaRound = revealSnapshot?.round ?? currentRoundData;
   const arenaRoundNumber = revealSnapshot?.roundNumber ?? room.currentRound;
-  const winner = room.status === 'finished' ? getGameWinner(room.scores, TOTAL_ROUNDS) : null;
+  // getGameWinner が null を返す場合（引き分けラウンドで played < totalRounds になるケース）はスコア直比較で補完
+  const winner = (() => {
+    if (room.status !== 'finished') return null;
+    const w = getGameWinner(room.scores, TOTAL_ROUNDS);
+    if (w !== null) return w;
+    if (room.scores.host > room.scores.guest) return 'host' as const;
+    if (room.scores.guest > room.scores.host) return 'guest' as const;
+    return 'draw' as const;
+  })();
   const iWon = winner === myRole;
   const isDraw = winner === 'draw';
 

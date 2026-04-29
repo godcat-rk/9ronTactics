@@ -169,8 +169,8 @@ export function Game() {
       <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-4">
         <div className="text-6xl animate-dragon-glow">龍</div>
         <h2 className="text-3xl font-bold tracking-widest"
-          style={{ color: iWon ? '#00e5ff' : isDraw ? '#ffd700' : '#ff2d55',
-            textShadow: `0 0 20px ${iWon ? '#00e5ff' : isDraw ? '#ffd700' : '#ff2d55'}` }}>
+          style={{ color: iWon ? '#ffd700' : isDraw ? '#888888' : '#bf44ff',
+            textShadow: `0 0 20px ${iWon ? '#ffd700' : isDraw ? '#888888' : '#bf44ff'}` }}>
           {iWon ? '勝利！' : isDraw ? '引き分け' : '敗北'}
         </h2>
         <ScoreBoard scores={room.scores} myRole={myRole!} />

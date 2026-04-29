@@ -19,7 +19,7 @@ export function Arena({ round, currentRound, myRole, phase }: Props) {
   const showResult = bothSubmitted && phase === 'result' && round?.outcome != null;
   const myOutcome = round?.outcome === myRole;
   const draw = round?.outcome === 'draw';
-  const resultColor = myOutcome ? '#00e5ff' : draw ? '#ffd700' : '#ff2d55';
+  const resultColor = myOutcome ? '#ffd700' : draw ? '#888888' : '#bf44ff';
 
   return (
     <div className="flex w-full max-w-sm flex-col items-center gap-3">

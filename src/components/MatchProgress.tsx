@@ -23,7 +23,7 @@ export function MatchProgress({ rounds, currentRound, myRole, isFinished = false
           const oppTile = rec ? (myRole === 'host' ? rec.guestTile : rec.hostTile) : null;
           const won = rec?.outcome === myRole;
           const draw = rec?.outcome === 'draw';
-          const resultColor = won ? '#00e5ff' : draw ? '#ffd700' : '#ff2d55';
+          const resultColor = won ? '#ffd700' : draw ? '#888888' : '#bf44ff';
           const oppIsOdd = done && oppTile != null ? isOdd(oppTile) : null;
           const oppColor = oppIsOdd === true ? '#ff2d55' : oppIsOdd === false ? '#00e5ff' : null;
           const myColor = myTile != null ? (isOdd(myTile) ? '#ff6b8a' : '#5ef0ff') : undefined;

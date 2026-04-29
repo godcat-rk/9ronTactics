@@ -133,11 +133,21 @@ export function Game() {
   }
 
   const rounds = room.rounds ?? {};
-  const usedTiles = Object.values(rounds)
+
+  // アニメーション中は対象ラウンドの結果をマスク（MatchProgress・トークン表示のフライングを防ぐ）
+  const displayRounds = (arenaPhase !== 'active' && revealSnapshot)
+    ? {
+        ...rounds,
+        [revealSnapshot.roundNumber]: { ...rounds[revealSnapshot.roundNumber], outcome: null as null },
+      }
+    : rounds;
+
+  const usedTiles = Object.values(displayRounds)
     .filter((r) => r.outcome != null)
     .map((r) => (myRole === 'host' ? r.hostTile : r.guestTile))
     .filter((t): t is Tile => t != null);
-  const opponentSubmittedTiles = Object.values(rounds)
+  const opponentSubmittedTiles = Object.values(displayRounds)
+    .filter((r) => r.outcome != null)
     .map((r) => (myRole === 'host' ? r.guestTile : r.hostTile))
     .filter((t): t is Tile => t != null);
   const opponentOddUsed = opponentSubmittedTiles.filter(isOdd).length;
@@ -215,7 +225,7 @@ export function Game() {
         </span>
       </div>
 
-      <MatchProgress rounds={rounds} currentRound={room.currentRound} myRole={myRole!} />
+      <MatchProgress rounds={displayRounds} currentRound={room.currentRound} myRole={myRole!} />
 
       <ScoreBoard scores={room.scores} myRole={myRole!} />
 

@@ -22,7 +22,7 @@ export function Arena({ round, currentRound, myRole, phase }: Props) {
   const draw      = round?.outcome === 'draw';
 
   const resultColor = myOutcome ? '#C89614' : draw ? '#7A7060' : '#7B44CC';
-  const resultLabel = myOutcome ? '勝' : draw ? '引分' : '敗';
+  const resultLabel = myOutcome ? 'WIN' : draw ? 'DRAW' : 'LOSE';
 
   return (
     <div
@@ -68,12 +68,12 @@ export function Arena({ round, currentRound, myRole, phase }: Props) {
             <span
               className="animate-result-pop"
               style={{
-                fontFamily: "'Noto Serif JP', serif",
+                fontFamily: "'Cinzel', serif",
                 fontSize: 38,
                 fontWeight: 900,
                 color: resultColor,
                 textShadow: `0 0 28px ${resultColor}, 0 0 60px ${resultColor}66`,
-                letterSpacing: '0.1em',
+                letterSpacing: '0.2em',
               }}
             >
               {resultLabel}
@@ -161,8 +161,7 @@ function OpponentTile({ tile, showColor }: { tile: Tile | null; showColor: boole
         color, gap: 4, fontFamily: "'Noto Serif JP', serif",
       }}
     >
-      <span style={{ fontSize: 11, letterSpacing: '0.05em' }}>{odd ? '赤・奇' : '青・偶'}</span>
-      <span style={{ fontSize: 22 }}>伏</span>
+      <span style={{ fontSize: 28, fontWeight: 700 }}>{odd ? '奇' : '偶'}</span>
     </div>
   );
 }

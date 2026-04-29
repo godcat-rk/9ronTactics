@@ -70,16 +70,6 @@ export function TileHand({ usedTiles, selectedTile, submitted, onSelect }: Props
                   ★
                 </span>
               )}
-              <span
-                style={{
-                  fontSize: 9,
-                  letterSpacing: '0.05em',
-                  color: odd ? '#6A2828' : '#1E5A42',
-                  marginTop: 3,
-                }}
-              >
-                {odd ? '奇' : '偶'}
-              </span>
             </button>
           );
         })}

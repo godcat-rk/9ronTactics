@@ -29,6 +29,7 @@ export function Game() {
   } = useGameStore();
 
   const [copied, setCopied] = useState(false);
+  const [copiedId, setCopiedId] = useState(false);
   const [arenaPhase, setArenaPhase] = useState<ArenaPhase>('active');
   const [revealSnapshot, setRevealSnapshot] = useState<RevealSnapshot | null>(null);
   const [rematchRequested, setRematchRequested] = useState(false);
@@ -129,6 +130,13 @@ export function Game() {
     setTimeout(() => setCopied(false), 2000);
   }, []);
 
+  const copyRoomId = useCallback(() => {
+    if (!roomId) return;
+    navigator.clipboard.writeText(roomId);
+    setCopiedId(true);
+    setTimeout(() => setCopiedId(false), 2000);
+  }, [roomId]);
+
   async function handleSubmit() {
     if (!selectedTile || !myRole || !roomId || !room) return;
     setSubmitted(true);
@@ -204,7 +212,21 @@ export function Game() {
           >
             {copied ? 'コピーしました！' : 'URLをコピー'}
           </button>
-          <p className="text-lg font-bold neon-text-cyan tracking-widest">{roomId}</p>
+          <div className="flex items-center gap-2 mt-1">
+            <p className="text-lg font-bold neon-text-cyan tracking-widest">{roomId}</p>
+            <button
+              onClick={copyRoomId}
+              className="px-3 py-1 rounded text-xs tracking-widest transition-all hover:scale-105"
+              style={{
+                background: 'transparent',
+                border: '1px solid #00e5ff55',
+                color: copiedId ? '#00e5ff' : '#555',
+              }}
+            >
+              {copiedId ? 'コピー済み' : 'IDコピー'}
+            </button>
+          </div>
+          <p className="text-[10px]" style={{ color: '#333' }}>またはホーム画面でID入力</p>
         </div>
       </div>
     );

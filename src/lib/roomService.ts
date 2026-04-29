@@ -71,6 +71,23 @@ export async function submitTile(
   }
 }
 
+export async function requestRematch(roomId: string, role: PlayerRole): Promise<void> {
+  await update(ref(db, `rooms/${roomId}/rematch`), { [role]: true });
+
+  const snap = await get(ref(db, `rooms/${roomId}/rematch`));
+  const rematch = snap.val() ?? {};
+  if (rematch.host && rematch.guest) {
+    await update(ref(db, `rooms/${roomId}`), {
+      status: 'playing',
+      currentRound: 1,
+      rounds: null,
+      scores: { host: 0, guest: 0 },
+      firstPlayer: 'host',
+      rematch: null,
+    });
+  }
+}
+
 export function subscribeToRoom(
   roomId: string,
   callback: (room: GameRoom | null) => void

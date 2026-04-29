@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useGameStore } from '../store/gameStore';
-import { subscribeToRoom, submitTile } from '../lib/roomService';
+import { subscribeToRoom, submitTile, requestRematch } from '../lib/roomService';
 import { ensureAuth } from '../lib/firebase';
 import { joinRoom } from '../lib/roomService';
 import { getGameWinner, isOdd, TOTAL_ROUNDS } from '../lib/gameLogic';
@@ -31,6 +31,7 @@ export function Game() {
   const [copied, setCopied] = useState(false);
   const [arenaPhase, setArenaPhase] = useState<ArenaPhase>('active');
   const [revealSnapshot, setRevealSnapshot] = useState<RevealSnapshot | null>(null);
+  const [rematchRequested, setRematchRequested] = useState(false);
   const lastCompletedKeyRef = useRef<string | null>(null);
 
   // Handle direct URL visit (guest joining via link)
@@ -54,6 +55,16 @@ export function Game() {
     const unsub = subscribeToRoom(roomId, setRoom);
     return unsub;
   }, [roomId]);
+
+  // 再戦でゲームがリセットされたらローカル状態をクリア
+  useEffect(() => {
+    if (room?.status === 'playing' && !room?.rematch) {
+      setRematchRequested(false);
+      setSubmitted(false);
+      selectTile(null);
+      lastCompletedKeyRef.current = '';
+    }
+  }, [room?.status, room?.rematch]);
 
   // Keep the completed round on screen long enough to show color first, then result.
   useEffect(() => {
@@ -190,6 +201,16 @@ export function Game() {
 
   // Game finished
   if (room.status === 'finished' && !revealSnapshot) {
+    const oppRole = myRole === 'host' ? 'guest' : 'host';
+    const iRequestedRematch = room.rematch?.[myRole!] ?? false;
+    const oppRequestedRematch = room.rematch?.[oppRole] ?? false;
+
+    async function handleRematch() {
+      if (!roomId || !myRole) return;
+      setRematchRequested(true);
+      await requestRematch(roomId, myRole);
+    }
+
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-4">
         <div className="text-6xl animate-dragon-glow">龍</div>
@@ -200,10 +221,38 @@ export function Game() {
         </h2>
         <ScoreBoard scores={room.scores} myRole={myRole!} />
         <MatchProgress rounds={room.rounds ?? {}} currentRound={room.currentRound} myRole={myRole!} isFinished />
+
+        <div className="flex flex-col items-center gap-2 mt-2">
+          {!iRequestedRematch ? (
+            <button
+              onClick={handleRematch}
+              disabled={rematchRequested}
+              className="px-8 py-3 rounded font-bold tracking-widest text-sm transition-all hover:scale-105 active:scale-95"
+              style={{
+                background: 'transparent',
+                border: '1px solid #ffd700',
+                color: '#ffd700',
+                boxShadow: '0 0 12px rgba(255,215,0,0.3)',
+              }}
+            >
+              再戦する
+            </button>
+          ) : (
+            <p className="text-sm tracking-widest animate-pulse" style={{ color: '#ffd700' }}>
+              {oppRequestedRematch ? '再戦開始…' : '相手の返答待ち…'}
+            </p>
+          )}
+          {!iRequestedRematch && oppRequestedRematch && (
+            <p className="text-xs tracking-widest" style={{ color: '#00e5ff' }}>
+              相手が再戦を希望しています
+            </p>
+          )}
+        </div>
+
         <button
           onClick={() => navigate('/')}
-          className="mt-4 px-6 py-2 rounded text-sm tracking-widest"
-          style={{ border: '1px solid #444', color: '#888' }}
+          className="px-6 py-2 rounded text-sm tracking-widest"
+          style={{ border: '1px solid #333', color: '#555' }}
         >
           ホームへ戻る
         </button>

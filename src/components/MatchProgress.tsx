@@ -50,9 +50,19 @@ export function MatchProgress({ rounds, currentRound, myRole, isFinished = false
                 {n}
               </span>
 
-              {/* Opponent color dot */}
-              <div style={{ height: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {oppColor != null ? (
+              {/* Opponent tile: number on result screen, color dot during match */}
+              <div style={{ height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {isFinished && oppTile != null ? (
+                  <span style={{
+                    fontSize: 14,
+                    fontWeight: 'bold',
+                    lineHeight: 1,
+                    color: oppColor ?? '#555',
+                    textShadow: oppColor ? `0 0 6px ${oppColor}` : 'none',
+                  }}>
+                    {oppTile}
+                  </span>
+                ) : oppColor != null ? (
                   <span style={{
                     display: 'inline-block',
                     width: 8, height: 8,

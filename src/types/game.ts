@@ -20,4 +20,5 @@ export interface GameRoom {
   firstPlayer: PlayerRole;
   rounds: Record<number, RoundRecord>;
   scores: { host: number; guest: number };
+  rematch?: { host?: boolean; guest?: boolean };
 }

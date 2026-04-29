@@ -1,7 +1,7 @@
 import type { RoundRecord, PlayerRole, Tile } from '../types/game';
 import { isOdd } from '../lib/gameLogic';
 
-type ArenaPhase = 'active' | 'colors' | 'result';
+type ArenaPhase = 'active' | 'suspense' | 'colors' | 'result';
 
 interface Props {
   round: RoundRecord | null;
@@ -15,7 +15,8 @@ export function Arena({ round, currentRound, myRole, phase }: Props) {
   const opponentTile = myRole === 'host' ? round?.guestTile : round?.hostTile;
   const opponentHasTile = opponentTile != null;
   const bothSubmitted = myTile != null && opponentHasTile;
-  const showOpponentColor = bothSubmitted && phase !== 'active';
+  const isSuspense = bothSubmitted && phase === 'suspense';
+  const showOpponentColor = bothSubmitted && (phase === 'colors' || phase === 'result');
   const showResult = bothSubmitted && phase === 'result' && round?.outcome != null;
   const myOutcome = round?.outcome === myRole;
   const draw = round?.outcome === 'draw';
@@ -32,12 +33,18 @@ export function Arena({ round, currentRound, myRole, phase }: Props) {
       <div className="flex w-full flex-col items-center gap-3">
         <div className="flex flex-col items-center gap-2 opacity-90">
           <span className="text-xs tracking-widest" style={{ color: '#888' }}>OPPONENT</span>
-          <OpponentTile tile={opponentTile ?? null} showColor={showOpponentColor} />
+          <div className={isSuspense ? 'animate-tile-shake' : ''}>
+            <OpponentTile tile={opponentTile ?? null} showColor={showOpponentColor} />
+          </div>
         </div>
 
         <div className="flex h-10 flex-col items-center justify-center">
-          {showResult ? (
-            <span className="text-sm font-bold tracking-widest" style={{ color: resultColor, textShadow: `0 0 14px ${resultColor}` }}>
+          {isSuspense ? (
+            <span className="text-sm font-bold tracking-widest animate-pulse-neon" style={{ color: '#ffd700' }}>
+              どっちだ…
+            </span>
+          ) : showResult ? (
+            <span className="text-xl font-bold tracking-widest animate-result-pop" style={{ color: resultColor, textShadow: `0 0 20px ${resultColor}` }}>
               {myOutcome ? 'WIN' : draw ? 'DRAW' : 'LOSE'}
             </span>
           ) : bothSubmitted && phase === 'colors' ? (
@@ -48,7 +55,9 @@ export function Arena({ round, currentRound, myRole, phase }: Props) {
         </div>
 
         <div className="flex flex-col items-center gap-2">
-          <MyTile tile={myTile ?? null} highlight={showResult ? resultColor : null} />
+          <div className={isSuspense ? 'animate-tile-shake' : ''}>
+            <MyTile tile={myTile ?? null} highlight={showResult ? resultColor : null} />
+          </div>
           <span className="text-xs tracking-widest" style={{ color: '#888' }}>YOU</span>
         </div>
       </div>

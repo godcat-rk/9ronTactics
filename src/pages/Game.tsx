@@ -5,6 +5,7 @@ import { subscribeToRoom, submitTile } from '../lib/roomService';
 import { ensureAuth } from '../lib/firebase';
 import { joinRoom } from '../lib/roomService';
 import { getGameWinner, isOdd, TOTAL_ROUNDS } from '../lib/gameLogic';
+import { playSuspenseTicks, playReveal, playWin, playLose, playDraw } from '../lib/sounds';
 import { TileHand } from '../components/TileHand';
 import { Arena } from '../components/Arena';
 import { MatchProgress } from '../components/MatchProgress';
@@ -12,7 +13,7 @@ import { ScoreBoard } from '../components/ScoreBoard';
 import { OpponentColorStock } from '../components/OpponentColorStock';
 import type { RoundRecord, Tile } from '../types/game';
 
-type ArenaPhase = 'active' | 'colors' | 'result';
+type ArenaPhase = 'active' | 'suspense' | 'colors' | 'result';
 
 interface RevealSnapshot {
   roundNumber: number;
@@ -79,19 +80,33 @@ export function Game() {
 
     lastCompletedKeyRef.current = completedKey;
     setRevealSnapshot(latestCompleted);
-    setArenaPhase('colors');
+    setArenaPhase('suspense');
     setSubmitted(false);
     selectTile(null);
+    playSuspenseTicks();
 
-    const resultTimer = window.setTimeout(() => setArenaPhase('result'), 900);
+    const colorsTimer = window.setTimeout(() => {
+      setArenaPhase('colors');
+      playReveal();
+    }, 1400);
+
+    const resultTimer = window.setTimeout(() => {
+      setArenaPhase('result');
+      const { outcome } = latestCompleted.round;
+      if (outcome === myRole) playWin();
+      else if (outcome === 'draw') playDraw();
+      else playLose();
+    }, 2400);
+
     const clearTimer = window.setTimeout(() => {
       setRevealSnapshot(null);
       setArenaPhase('active');
       setSubmitted(false);
       selectTile(null);
-    }, 2300);
+    }, 4200);
 
     return () => {
+      window.clearTimeout(colorsTimer);
       window.clearTimeout(resultTimer);
       window.clearTimeout(clearTimer);
     };

@@ -1,15 +1,24 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useGameStore } from '../store/gameStore';
 import { subscribeToRoom, submitTile } from '../lib/roomService';
 import { ensureAuth } from '../lib/firebase';
 import { joinRoom } from '../lib/roomService';
-import { getGameWinner, TOTAL_ROUNDS } from '../lib/gameLogic';
+import { getGameWinner, isOdd, TOTAL_ROUNDS } from '../lib/gameLogic';
+import { playSuspenseTicks, playReveal, playWin, playLose, playDraw } from '../lib/sounds';
 import { TileHand } from '../components/TileHand';
 import { Arena } from '../components/Arena';
-import { RoundHistory } from '../components/RoundHistory';
+import { MatchProgress } from '../components/MatchProgress';
 import { ScoreBoard } from '../components/ScoreBoard';
-import type { Tile } from '../types/game';
+import { OpponentColorStock } from '../components/OpponentColorStock';
+import type { RoundRecord, Tile } from '../types/game';
+
+type ArenaPhase = 'active' | 'suspense' | 'colors' | 'result';
+
+interface RevealSnapshot {
+  roundNumber: number;
+  round: RoundRecord;
+}
 
 export function Game() {
   const { roomId: urlRoomId } = useParams<{ roomId: string }>();
@@ -20,8 +29,9 @@ export function Game() {
   } = useGameStore();
 
   const [copied, setCopied] = useState(false);
-  const [revealed, setRevealed] = useState(false);
-  const [prevRound, setPrevRound] = useState(0);
+  const [arenaPhase, setArenaPhase] = useState<ArenaPhase>('active');
+  const [revealSnapshot, setRevealSnapshot] = useState<RevealSnapshot | null>(null);
+  const lastCompletedKeyRef = useRef<string | null>(null);
 
   // Handle direct URL visit (guest joining via link)
   useEffect(() => {
@@ -45,17 +55,62 @@ export function Game() {
     return unsub;
   }, [roomId]);
 
-  // Reveal animation when round advances
+  // Keep the completed round on screen long enough to show color first, then result.
   useEffect(() => {
     if (!room) return;
-    if (room.currentRound !== prevRound && prevRound !== 0) {
-      setRevealed(true);
-      setSubmitted(false);
-      selectTile(null as unknown as Tile);
-      setTimeout(() => setRevealed(false), 2000);
+    const latestCompleted = Object.entries(room.rounds ?? {})
+      .map(([k, v]) => ({ roundNumber: Number(k), round: v }))
+      .filter(({ round }) => round.outcome != null)
+      .sort((a, b) => b.roundNumber - a.roundNumber)[0];
+
+    if (!latestCompleted) {
+      if (lastCompletedKeyRef.current === null) {
+        lastCompletedKeyRef.current = '';
+      }
+      return;
     }
-    setPrevRound(room.currentRound);
-  }, [room?.currentRound]);
+
+    const { roundNumber, round } = latestCompleted;
+    const completedKey = `${roundNumber}:${round.hostTile}:${round.guestTile}:${round.outcome}`;
+    if (lastCompletedKeyRef.current === null) {
+      lastCompletedKeyRef.current = completedKey;
+      return;
+    }
+    if (lastCompletedKeyRef.current === completedKey) return;
+
+    lastCompletedKeyRef.current = completedKey;
+    setRevealSnapshot(latestCompleted);
+    setArenaPhase('suspense');
+    setSubmitted(false);
+    selectTile(null);
+    playSuspenseTicks();
+
+    const colorsTimer = window.setTimeout(() => {
+      setArenaPhase('colors');
+      playReveal();
+    }, 1700);
+
+    const resultTimer = window.setTimeout(() => {
+      setArenaPhase('result');
+      const { outcome } = latestCompleted.round;
+      if (outcome === myRole) playWin();
+      else if (outcome === 'draw') playDraw();
+      else playLose();
+    }, 2800);
+
+    const clearTimer = window.setTimeout(() => {
+      setRevealSnapshot(null);
+      setArenaPhase('active');
+      setSubmitted(false);
+      selectTile(null);
+    }, 4600);
+
+    return () => {
+      window.clearTimeout(colorsTimer);
+      window.clearTimeout(resultTimer);
+      window.clearTimeout(clearTimer);
+    };
+  }, [room, selectTile, setSubmitted]);
 
   const copyLink = useCallback(() => {
     navigator.clipboard.writeText(window.location.href);
@@ -78,12 +133,31 @@ export function Game() {
   }
 
   const rounds = room.rounds ?? {};
-  const usedTiles = Object.values(rounds)
+
+  // アニメーション中は対象ラウンドの結果をマスク（MatchProgress・トークン表示のフライングを防ぐ）
+  const displayRounds = (arenaPhase !== 'active' && revealSnapshot)
+    ? {
+        ...rounds,
+        [revealSnapshot.roundNumber]: { ...rounds[revealSnapshot.roundNumber], outcome: null as null },
+      }
+    : rounds;
+
+  const usedTiles = Object.values(displayRounds)
     .filter((r) => r.outcome != null)
     .map((r) => (myRole === 'host' ? r.hostTile : r.guestTile))
     .filter((t): t is Tile => t != null);
+  const opponentSubmittedTiles = Object.values(displayRounds)
+    .filter((r) => r.outcome != null)
+    .map((r) => (myRole === 'host' ? r.guestTile : r.hostTile))
+    .filter((t): t is Tile => t != null);
+  const opponentOddUsed = opponentSubmittedTiles.filter(isOdd).length;
+  const opponentEvenUsed = opponentSubmittedTiles.length - opponentOddUsed;
+  const opponentOddRemaining = Math.max(0, 5 - opponentOddUsed);
+  const opponentEvenRemaining = Math.max(0, 4 - opponentEvenUsed);
 
   const currentRoundData = rounds[room.currentRound] ?? null;
+  const arenaRound = revealSnapshot?.round ?? currentRoundData;
+  const arenaRoundNumber = revealSnapshot?.roundNumber ?? room.currentRound;
   const winner = room.status === 'finished' ? getGameWinner(room.scores, TOTAL_ROUNDS) : null;
   const iWon = winner === myRole;
   const isDraw = winner === 'draw';
@@ -115,17 +189,17 @@ export function Game() {
   }
 
   // Game finished
-  if (room.status === 'finished') {
+  if (room.status === 'finished' && !revealSnapshot) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-4">
         <div className="text-6xl animate-dragon-glow">龍</div>
         <h2 className="text-3xl font-bold tracking-widest"
-          style={{ color: iWon ? '#00e5ff' : isDraw ? '#ffd700' : '#ff2d55',
-            textShadow: `0 0 20px ${iWon ? '#00e5ff' : isDraw ? '#ffd700' : '#ff2d55'}` }}>
+          style={{ color: iWon ? '#ffd700' : isDraw ? '#888888' : '#bf44ff',
+            textShadow: `0 0 20px ${iWon ? '#ffd700' : isDraw ? '#888888' : '#bf44ff'}` }}>
           {iWon ? '勝利！' : isDraw ? '引き分け' : '敗北'}
         </h2>
         <ScoreBoard scores={room.scores} myRole={myRole!} />
-        <RoundHistory rounds={room.rounds} myRole={myRole!} />
+        <MatchProgress rounds={room.rounds ?? {}} currentRound={room.currentRound} myRole={myRole!} isFinished />
         <button
           onClick={() => navigate('/')}
           className="mt-4 px-6 py-2 rounded text-sm tracking-widest"
@@ -138,8 +212,7 @@ export function Game() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center gap-6 p-4 pt-8"
-      style={{ background: 'linear-gradient(180deg, #0a0a0f 0%, #0f0f1a 100%)' }}>
+    <div className="min-h-screen flex flex-col items-center gap-6 p-4 pt-8">
 
       {/* Header */}
       <div className="flex items-center gap-3">
@@ -152,13 +225,20 @@ export function Game() {
         </span>
       </div>
 
+      <MatchProgress rounds={displayRounds} currentRound={room.currentRound} myRole={myRole!} />
+
       <ScoreBoard scores={room.scores} myRole={myRole!} />
 
+      <OpponentColorStock
+        oddRemaining={opponentOddRemaining}
+        evenRemaining={opponentEvenRemaining}
+      />
+
       <Arena
-        round={currentRoundData}
-        currentRound={room.currentRound}
+        round={arenaRound}
+        currentRound={arenaRoundNumber}
         myRole={myRole!}
-        revealed={revealed}
+        phase={arenaPhase}
       />
 
       <TileHand
@@ -183,7 +263,6 @@ export function Game() {
         </button>
       )}
 
-      <RoundHistory rounds={room.rounds} myRole={myRole!} />
     </div>
   );
 }

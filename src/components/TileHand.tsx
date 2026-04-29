@@ -36,9 +36,6 @@ export function TileHand({ usedTiles, selectedTile, submitted, onSelect }: Props
                 color: odd ? '#ff6680' : '#00e5ff',
               }}
             >
-              <span className="text-xs opacity-50" style={{ fontFamily: 'serif' }}>
-                {odd ? '陽' : '陰'}
-              </span>
               <span>{tile}</span>
               {tile === 1 && (
                 <span className="absolute -top-1 -right-1 text-xs" style={{ color: '#ffd700', fontSize: '8px' }}>★</span>

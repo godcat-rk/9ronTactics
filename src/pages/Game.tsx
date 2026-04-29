@@ -7,7 +7,7 @@ import { joinRoom } from '../lib/roomService';
 import { getGameWinner, isOdd, TOTAL_ROUNDS } from '../lib/gameLogic';
 import { TileHand } from '../components/TileHand';
 import { Arena } from '../components/Arena';
-import { RoundHistory } from '../components/RoundHistory';
+import { MatchProgress } from '../components/MatchProgress';
 import { ScoreBoard } from '../components/ScoreBoard';
 import { OpponentColorStock } from '../components/OpponentColorStock';
 import type { RoundRecord, Tile } from '../types/game';
@@ -174,7 +174,7 @@ export function Game() {
           {iWon ? '勝利！' : isDraw ? '引き分け' : '敗北'}
         </h2>
         <ScoreBoard scores={room.scores} myRole={myRole!} />
-        <RoundHistory rounds={room.rounds} myRole={myRole!} />
+        <MatchProgress rounds={room.rounds ?? {}} currentRound={room.currentRound} myRole={myRole!} isFinished />
         <button
           onClick={() => navigate('/')}
           className="mt-4 px-6 py-2 rounded text-sm tracking-widest"
@@ -187,8 +187,7 @@ export function Game() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center gap-6 p-4 pt-8"
-      style={{ background: 'linear-gradient(180deg, #0a0a0f 0%, #0f0f1a 100%)' }}>
+    <div className="min-h-screen flex flex-col items-center gap-6 p-4 pt-8">
 
       {/* Header */}
       <div className="flex items-center gap-3">
@@ -200,6 +199,8 @@ export function Game() {
           {roomId}
         </span>
       </div>
+
+      <MatchProgress rounds={rounds} currentRound={room.currentRound} myRole={myRole!} />
 
       <ScoreBoard scores={room.scores} myRole={myRole!} />
 
@@ -237,7 +238,6 @@ export function Game() {
         </button>
       )}
 
-      <RoundHistory rounds={room.rounds} myRole={myRole!} />
     </div>
   );
 }

@@ -52,8 +52,7 @@ export function Home() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-8 p-4"
-      style={{ background: 'linear-gradient(135deg, #0a0a0f 0%, #0f0a1a 50%, #0a0f0f 100%)' }}>
+    <div className="min-h-screen flex flex-col items-center justify-center gap-8 p-4">
 
       {/* Title */}
       <div className="flex flex-col items-center gap-2">

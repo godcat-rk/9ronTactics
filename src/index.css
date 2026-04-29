@@ -19,7 +19,22 @@
 
 body {
   margin: 0;
-  background: var(--bg-dark);
+  background:
+    radial-gradient(ellipse 700px 450px at 92% 8%,  rgba(255, 45,  85,  0.22) 0%, transparent 68%),
+    radial-gradient(ellipse 500px 650px at 4%  92%, rgba(0,  229, 255, 0.15) 0%, transparent 68%),
+    radial-gradient(ellipse 400px 400px at 48% 58%, rgba(255, 215, 0,   0.08) 0%, transparent 68%),
+    repeating-linear-gradient(
+       45deg,
+       rgba(255, 215, 0, 0.018) 0px, rgba(255, 215, 0, 0.018) 1px,
+       transparent 1px, transparent 30px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+       rgba(255, 215, 0, 0.018) 0px, rgba(255, 215, 0, 0.018) 1px,
+       transparent 1px, transparent 30px
+    ),
+    #050508;
+  background-attachment: fixed;
   color: #e0e0e0;
   font-family: 'Rajdhani', 'Noto Serif SC', sans-serif;
   min-height: 100vh;

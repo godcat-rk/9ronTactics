@@ -28,36 +28,31 @@ export function Game() {
     setRoom, setRoomId, setMyRole, setMyUid, selectTile, setSubmitted,
   } = useGameStore();
 
-  const [copied, setCopied] = useState(false);
-  const [copiedId, setCopiedId] = useState(false);
-  const [arenaPhase, setArenaPhase] = useState<ArenaPhase>('active');
-  const [revealSnapshot, setRevealSnapshot] = useState<RevealSnapshot | null>(null);
+  const [copied, setCopied]                     = useState(false);
+  const [copiedId, setCopiedId]                 = useState(false);
+  const [arenaPhase, setArenaPhase]             = useState<ArenaPhase>('active');
+  const [revealSnapshot, setRevealSnapshot]     = useState<RevealSnapshot | null>(null);
   const [rematchRequested, setRematchRequested] = useState(false);
   const lastCompletedKeyRef = useRef<string | null>(null);
 
-  // Handle direct URL visit (guest joining via link)
   useEffect(() => {
     if (!urlRoomId) return;
-    if (roomId) return; // already in store
-
+    if (roomId) return;
     (async () => {
       const uid = await ensureAuth();
       setMyUid(uid);
       setRoomId(urlRoomId);
-      // Try joining as guest
       const ok = await joinRoom(urlRoomId, uid);
-      setMyRole(ok ? 'guest' : 'host'); // fallback: might be host reconnecting
+      setMyRole(ok ? 'guest' : 'host');
     })();
   }, [urlRoomId]);
 
-  // Subscribe to room updates
   useEffect(() => {
     if (!roomId) return;
     const unsub = subscribeToRoom(roomId, setRoom);
     return unsub;
   }, [roomId]);
 
-  // 再戦でゲームがリセットされたらローカル状態をクリア
   useEffect(() => {
     if (room?.status === 'playing' && !room?.rematch) {
       setRematchRequested(false);
@@ -67,7 +62,6 @@ export function Game() {
     }
   }, [room?.status, room?.rematch]);
 
-  // Keep the completed round on screen long enough to show color first, then result.
   useEffect(() => {
     if (!room) return;
     const latestCompleted = Object.entries(room.rounds ?? {})
@@ -76,18 +70,13 @@ export function Game() {
       .sort((a, b) => b.roundNumber - a.roundNumber)[0];
 
     if (!latestCompleted) {
-      if (lastCompletedKeyRef.current === null) {
-        lastCompletedKeyRef.current = '';
-      }
+      if (lastCompletedKeyRef.current === null) lastCompletedKeyRef.current = '';
       return;
     }
 
     const { roundNumber, round } = latestCompleted;
     const completedKey = `${roundNumber}:${round.hostTile}:${round.guestTile}:${round.outcome}`;
-    if (lastCompletedKeyRef.current === null) {
-      lastCompletedKeyRef.current = completedKey;
-      return;
-    }
+    if (lastCompletedKeyRef.current === null) { lastCompletedKeyRef.current = completedKey; return; }
     if (lastCompletedKeyRef.current === completedKey) return;
 
     lastCompletedKeyRef.current = completedKey;
@@ -97,11 +86,7 @@ export function Game() {
     selectTile(null);
     playSuspenseTicks();
 
-    const colorsTimer = window.setTimeout(() => {
-      setArenaPhase('colors');
-      playReveal();
-    }, 1700);
-
+    const colorsTimer = window.setTimeout(() => { setArenaPhase('colors'); playReveal(); }, 1700);
     const resultTimer = window.setTimeout(() => {
       setArenaPhase('result');
       const { outcome } = latestCompleted.round;
@@ -109,7 +94,6 @@ export function Game() {
       else if (outcome === 'draw') playDraw();
       else playLose();
     }, 2800);
-
     const clearTimer = window.setTimeout(() => {
       setRevealSnapshot(null);
       setArenaPhase('active');
@@ -146,19 +130,16 @@ export function Game() {
   if (!room) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="animate-pulse-neon neon-text-gold">接続中…</p>
+        <p className="animate-pulse-neon" style={{ color: '#C89614', fontFamily: "'Noto Serif JP', serif", fontSize: 16, letterSpacing: '0.15em' }}>
+          接続中…
+        </p>
       </div>
     );
   }
 
   const rounds = room.rounds ?? {};
-
-  // アニメーション中は対象ラウンドの結果をマスク（MatchProgress・トークン表示のフライングを防ぐ）
   const displayRounds = (arenaPhase !== 'active' && revealSnapshot)
-    ? {
-        ...rounds,
-        [revealSnapshot.roundNumber]: { ...rounds[revealSnapshot.roundNumber], outcome: null as null },
-      }
+    ? { ...rounds, [revealSnapshot.roundNumber]: { ...rounds[revealSnapshot.roundNumber], outcome: null as null } }
     : rounds;
   const displayScores = (arenaPhase !== 'active' && revealSnapshot)
     ? countScores(displayRounds)
@@ -172,15 +153,14 @@ export function Game() {
     .filter((r) => r.outcome != null)
     .map((r) => (myRole === 'host' ? r.guestTile : r.hostTile))
     .filter((t): t is Tile => t != null);
-  const opponentOddUsed = opponentSubmittedTiles.filter(isOdd).length;
-  const opponentEvenUsed = opponentSubmittedTiles.length - opponentOddUsed;
-  const opponentOddRemaining = Math.max(0, 5 - opponentOddUsed);
+  const opponentOddUsed       = opponentSubmittedTiles.filter(isOdd).length;
+  const opponentEvenUsed      = opponentSubmittedTiles.length - opponentOddUsed;
+  const opponentOddRemaining  = Math.max(0, 5 - opponentOddUsed);
   const opponentEvenRemaining = Math.max(0, 4 - opponentEvenUsed);
 
   const currentRoundData = rounds[room.currentRound] ?? null;
-  const arenaRound = revealSnapshot?.round ?? currentRoundData;
+  const arenaRound       = revealSnapshot?.round ?? currentRoundData;
   const arenaRoundNumber = revealSnapshot?.roundNumber ?? room.currentRound;
-  // getGameWinner が null を返す場合（引き分けラウンドで played < totalRounds になるケース）はスコア直比較で補完
   const winner = (() => {
     if (room.status !== 'finished') return null;
     const w = getGameWinner(room.scores, TOTAL_ROUNDS);
@@ -189,53 +169,74 @@ export function Game() {
     if (room.scores.guest > room.scores.host) return 'guest' as const;
     return 'draw' as const;
   })();
-  const iWon = winner === myRole;
+  const iWon   = winner === myRole;
   const isDraw = winner === 'draw';
 
-  // Waiting for guest
+  // ── Waiting screen ───────────────────────────────────────────────
   if (room.status === 'waiting') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-4">
-        <div className="text-5xl animate-dragon-glow">龍</div>
-        <h2 className="text-xl neon-text-gold tracking-widest">対戦相手を待っています</h2>
-        <div className="flex flex-col items-center gap-2">
-          <p className="text-xs" style={{ color: '#666' }}>このURLを相手に送ってください</p>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-8 p-6">
+        <div className="animate-dragon-glow" style={{ fontSize: 72, fontFamily: 'serif' }}>龍</div>
+        <h2 style={{ fontFamily: "'Noto Serif JP', serif", fontSize: 22, color: '#C89614', textShadow: '0 0 16px rgba(200,150,20,0.5)', letterSpacing: '0.15em' }}>
+          対戦相手を待っています
+        </h2>
+
+        <div className="panel-ornate flex flex-col items-center gap-4" style={{ padding: '2rem 2.5rem' }}>
+          <p style={{ fontFamily: "'Noto Serif JP', serif", fontSize: 13, color: '#5C4008', letterSpacing: '0.05em' }}>
+            このURLを相手に送ってください
+          </p>
           <button
             onClick={copyLink}
-            className="px-6 py-2 rounded text-sm tracking-widest transition-all hover:scale-105"
+            className="transition-all hover:scale-105"
             style={{
+              padding: '12px 28px',
               background: 'transparent',
-              border: '1px solid #ffd700',
-              color: '#ffd700',
-              boxShadow: '0 0 8px rgba(255,215,0,0.2)',
+              border: '2px solid #C89614',
+              color: '#C89614',
+              boxShadow: '0 0 12px rgba(200,150,20,0.25)',
+              fontFamily: "'Noto Serif JP', serif",
+              fontSize: 14,
+              fontWeight: 700,
+              letterSpacing: '0.15em',
+              cursor: 'pointer',
             }}
           >
             {copied ? 'コピーしました！' : 'URLをコピー'}
           </button>
-          <div className="flex items-center gap-2 mt-1">
-            <p className="text-lg font-bold neon-text-cyan tracking-widest">{roomId}</p>
+
+          <div className="flex items-center gap-3 mt-1">
+            <p style={{ fontFamily: "'Cinzel', serif", fontSize: 20, fontWeight: 700, color: '#3EA878', textShadow: '0 0 10px rgba(62,168,120,0.5)', letterSpacing: '0.2em' }}>
+              {roomId}
+            </p>
             <button
               onClick={copyRoomId}
-              className="px-3 py-1 rounded text-xs tracking-widest transition-all hover:scale-105"
+              className="transition-all hover:scale-105"
               style={{
+                padding: '6px 14px',
                 background: 'transparent',
-                border: '1px solid #00e5ff55',
-                color: copiedId ? '#00e5ff' : '#555',
+                border: `1px solid ${copiedId ? '#3EA878' : '#2A1E0A'}`,
+                color: copiedId ? '#3EA878' : '#3A2808',
+                fontFamily: "'Cinzel', serif",
+                fontSize: 11,
+                letterSpacing: '0.1em',
+                cursor: 'pointer',
               }}
             >
-              {copiedId ? 'コピー済み' : 'IDコピー'}
+              {copiedId ? 'コピー済' : 'IDコピー'}
             </button>
           </div>
-          <p className="text-[10px]" style={{ color: '#333' }}>またはホーム画面でID入力</p>
+          <p style={{ fontSize: 11, color: '#2A1E0A', fontFamily: "'Noto Serif JP', serif" }}>
+            またはホーム画面でID入力
+          </p>
         </div>
       </div>
     );
   }
 
-  // Game finished
+  // ── Result screen ────────────────────────────────────────────────
   if (room.status === 'finished' && !revealSnapshot) {
-    const oppRole = myRole === 'host' ? 'guest' : 'host';
-    const iRequestedRematch = room.rematch?.[myRole!] ?? false;
+    const oppRole             = myRole === 'host' ? 'guest' : 'host';
+    const iRequestedRematch   = room.rematch?.[myRole!] ?? false;
     const oppRequestedRematch = room.rematch?.[oppRole] ?? false;
 
     async function handleRematch() {
@@ -244,39 +245,59 @@ export function Game() {
       await requestRematch(roomId, myRole);
     }
 
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-4">
-        <div className="text-6xl animate-dragon-glow">龍</div>
-        <h2 className="text-3xl font-bold tracking-widest"
-          style={{ color: iWon ? '#ffd700' : isDraw ? '#888888' : '#bf44ff',
-            textShadow: `0 0 20px ${iWon ? '#ffd700' : isDraw ? '#888888' : '#bf44ff'}` }}>
-          {iWon ? '勝利！' : isDraw ? '引き分け' : '敗北'}
-        </h2>
-        <ScoreBoard scores={room.scores} myRole={myRole!} />
-        <MatchProgress rounds={room.rounds ?? {}} currentRound={room.currentRound} myRole={myRole!} isFinished />
+    const resultColor = iWon ? '#C89614' : isDraw ? '#6A6050' : '#7B44CC';
+    const resultText  = iWon ? '勝利' : isDraw ? '引き分け' : '敗北';
 
-        <div className="flex flex-col items-center gap-2 mt-2">
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-7 p-6">
+        <div className="animate-dragon-glow" style={{ fontSize: 64, fontFamily: 'serif' }}>龍</div>
+
+        <h2
+          style={{
+            fontFamily: "'Noto Serif JP', serif",
+            fontSize: 40,
+            fontWeight: 900,
+            color: resultColor,
+            textShadow: `0 0 24px ${resultColor}, 0 0 60px ${resultColor}55`,
+            letterSpacing: '0.15em',
+          }}
+        >
+          {resultText}
+        </h2>
+
+        <div className="panel-ornate flex flex-col items-center gap-6" style={{ padding: '2rem 2.5rem', width: '100%', maxWidth: 500 }}>
+          <ScoreBoard scores={room.scores} myRole={myRole!} />
+          <MatchProgress rounds={room.rounds ?? {}} currentRound={room.currentRound} myRole={myRole!} isFinished />
+        </div>
+
+        <div className="flex flex-col items-center gap-3 mt-1">
           {!iRequestedRematch ? (
             <button
               onClick={handleRematch}
               disabled={rematchRequested}
-              className="px-8 py-3 rounded font-bold tracking-widest text-sm transition-all hover:scale-105 active:scale-95"
+              className="transition-all hover:scale-105 active:scale-95"
               style={{
+                padding: '14px 36px',
                 background: 'transparent',
-                border: '1px solid #ffd700',
-                color: '#ffd700',
-                boxShadow: '0 0 12px rgba(255,215,0,0.3)',
+                border: '2px solid #C89614',
+                color: '#C89614',
+                boxShadow: '0 0 16px rgba(200,150,20,0.3)',
+                fontFamily: "'Noto Serif JP', serif",
+                fontSize: 16,
+                fontWeight: 700,
+                letterSpacing: '0.2em',
+                cursor: 'pointer',
               }}
             >
               再戦する
             </button>
           ) : (
-            <p className="text-sm tracking-widest animate-pulse" style={{ color: '#ffd700' }}>
+            <p className="animate-pulse-neon" style={{ fontFamily: "'Noto Serif JP', serif", fontSize: 14, color: '#C89614', letterSpacing: '0.1em' }}>
               {oppRequestedRematch ? '再戦開始…' : '相手の返答待ち…'}
             </p>
           )}
           {!iRequestedRematch && oppRequestedRematch && (
-            <p className="text-xs tracking-widest" style={{ color: '#00e5ff' }}>
+            <p style={{ fontFamily: "'Noto Serif JP', serif", fontSize: 12, color: '#3EA878', letterSpacing: '0.08em' }}>
               相手が再戦を希望しています
             </p>
           )}
@@ -284,8 +305,17 @@ export function Game() {
 
         <button
           onClick={() => navigate('/')}
-          className="px-6 py-2 rounded text-sm tracking-widest"
-          style={{ border: '1px solid #333', color: '#555' }}
+          className="transition-all hover:opacity-70"
+          style={{
+            padding: '10px 24px',
+            background: 'transparent',
+            border: '1px solid #2A1E0A',
+            color: '#3A2808',
+            fontFamily: "'Noto Serif JP', serif",
+            fontSize: 13,
+            letterSpacing: '0.1em',
+            cursor: 'pointer',
+          }}
         >
           ホームへ戻る
         </button>
@@ -293,16 +323,17 @@ export function Game() {
     );
   }
 
+  // ── Game screen ──────────────────────────────────────────────────
   return (
     <div className="min-h-screen flex flex-col items-center gap-6 p-4 pt-8">
 
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <span className="text-2xl animate-dragon-glow">龍</span>
-        <span className="text-lg font-bold tracking-widest neon-text-red" style={{ fontFamily: 'serif' }}>
+      <div className="flex items-center gap-4">
+        <span className="animate-dragon-glow" style={{ fontSize: 26, fontFamily: 'serif' }}>龍</span>
+        <span style={{ fontFamily: "'Noto Serif JP', serif", fontSize: 18, fontWeight: 700, color: '#C41830', textShadow: '0 0 12px rgba(196,24,48,0.5)', letterSpacing: '0.15em' }}>
           九龍戦術
         </span>
-        <span className="text-xs px-2 py-0.5 rounded" style={{ border: '1px solid #2a2a3a', color: '#444' }}>
+        <span style={{ fontFamily: "'Cinzel', serif", fontSize: 11, padding: '3px 10px', border: '1px solid #2A1E0A', color: '#3A2808', letterSpacing: '0.15em' }}>
           {roomId}
         </span>
       </div>
@@ -333,12 +364,18 @@ export function Game() {
       {!submitted && selectedTile && (
         <button
           onClick={handleSubmit}
-          className="px-8 py-3 rounded font-bold tracking-widest text-sm uppercase transition-all hover:scale-105 active:scale-95"
+          className="transition-all hover:scale-105 active:scale-95"
           style={{
+            padding: '14px 36px',
             background: 'transparent',
-            border: '1px solid #ff2d55',
-            color: '#ff2d55',
-            boxShadow: '0 0 12px rgba(255,45,85,0.4)',
+            border: '2px solid #C41830',
+            color: '#C41830',
+            boxShadow: '0 0 16px rgba(196,24,48,0.4)',
+            fontFamily: "'Noto Serif JP', serif",
+            fontSize: 16,
+            fontWeight: 700,
+            letterSpacing: '0.2em',
+            cursor: 'pointer',
           }}
         >
           {selectedTile} を出す

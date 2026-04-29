@@ -12,87 +12,80 @@ const TOTAL_ROUNDS = 9;
 
 export function MatchProgress({ rounds, currentRound, myRole, isFinished = false }: Props) {
   return (
-    <div className="w-full max-w-sm px-1">
-      <div className="flex gap-1">
+    <div style={{ width: '100%', maxWidth: 520, padding: '0 4px' }}>
+      <div style={{ display: 'flex', gap: 4 }}>
         {Array.from({ length: TOTAL_ROUNDS }, (_, i) => i + 1).map((n) => {
-          const rec = rounds[n];
-          const done = rec?.outcome != null;
+          const rec    = rounds[n];
+          const done   = rec?.outcome != null;
           const active = !isFinished && n === currentRound && !done;
 
-          const myTile = rec ? (myRole === 'host' ? rec.hostTile : rec.guestTile) : null;
+          const myTile  = rec ? (myRole === 'host' ? rec.hostTile : rec.guestTile) : null;
           const oppTile = rec ? (myRole === 'host' ? rec.guestTile : rec.hostTile) : null;
-          const won = rec?.outcome === myRole;
+          const won  = rec?.outcome === myRole;
           const draw = rec?.outcome === 'draw';
-          const resultColor = won ? '#ffd700' : draw ? '#888888' : '#bf44ff';
-          const oppIsOdd = done && oppTile != null ? isOdd(oppTile) : null;
-          const oppColor = oppIsOdd === true ? '#ff2d55' : oppIsOdd === false ? '#00e5ff' : null;
-          const myColor = myTile != null ? (isOdd(myTile) ? '#ff6b8a' : '#5ef0ff') : undefined;
+
+          const resultColor = won ? '#C89614' : draw ? '#6A6050' : '#7B44CC';
+          const oppIsOdd    = done && oppTile != null ? isOdd(oppTile) : null;
+          const oppColor    = oppIsOdd === true ? '#C84040' : oppIsOdd === false ? '#3EA878' : null;
+          const myColor     = myTile != null ? (isOdd(myTile) ? '#A03030' : '#2E7055') : undefined;
 
           return (
             <div
               key={n}
-              className="flex-1 flex flex-col items-center py-1.5 rounded"
               style={{
-                gap: 3,
-                background: active ? '#141428' : '#0a0a14',
-                border: `1px solid ${done ? resultColor + '55' : active ? '#ffd70066' : '#181828'}`,
-                boxShadow: active ? '0 0 10px rgba(255,215,0,0.14)' : 'none',
-                opacity: !done && !active ? 0.32 : 1,
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: '6px 2px',
+                gap: 4,
+                background: active ? '#160F1E' : '#0C0910',
+                border: `1px solid ${done ? resultColor + '55' : active ? '#7A581066' : '#1E1428'}`,
+                boxShadow: active ? '0 0 10px rgba(200,150,20,0.12)' : 'none',
+                opacity: !done && !active ? 0.3 : 1,
                 transition: 'opacity 0.3s, border-color 0.3s',
               }}
             >
-              {/* Round number */}
-              <span style={{
-                fontSize: 9,
-                lineHeight: 1,
-                color: active ? '#ffd700' : done ? '#555' : '#2a2a3a',
-              }}>
+              <span
+                style={{
+                  fontFamily: "'Cinzel', serif",
+                  fontSize: 9, lineHeight: 1,
+                  color: active ? '#C89614' : done ? '#4A3820' : '#2A1E0A',
+                }}
+              >
                 {n}
               </span>
 
-              {/* Opponent tile: number on result screen, color dot during match */}
-              <div style={{ height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {isFinished && oppTile != null ? (
-                  <span style={{
-                    fontSize: 14,
-                    fontWeight: 'bold',
-                    lineHeight: 1,
-                    color: oppColor ?? '#555',
-                    textShadow: oppColor ? `0 0 6px ${oppColor}` : 'none',
-                  }}>
+                  <span style={{ fontFamily: "'Cinzel', serif", fontSize: 14, fontWeight: 700, lineHeight: 1, color: oppColor ?? '#4A3820', textShadow: oppColor ? `0 0 6px ${oppColor}` : 'none' }}>
                     {oppTile}
                   </span>
                 ) : oppColor != null ? (
-                  <span style={{
-                    display: 'inline-block',
-                    width: 8, height: 8,
-                    borderRadius: 2,
-                    background: oppColor,
-                    boxShadow: `0 0 5px ${oppColor}`,
-                  }} />
+                  <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: oppColor, boxShadow: `0 0 5px ${oppColor}` }} />
                 ) : (
                   <span style={{ display: 'inline-block', width: 8, height: 8 }} />
                 )}
               </div>
 
-              {/* My tile */}
-              <span style={{
-                fontSize: 14,
-                fontWeight: 'bold',
-                lineHeight: 1,
-                color: myColor ?? (active ? '#333' : '#1e1e2e'),
-              }}>
+              <span
+                style={{
+                  fontFamily: "'Cinzel', serif",
+                  fontSize: 14, fontWeight: 700, lineHeight: 1,
+                  color: myColor ?? (active ? '#2A1E0A' : '#1A1018'),
+                }}
+              >
                 {myTile != null ? myTile : active ? '?' : '·'}
               </span>
 
-              {/* Result */}
-              <span style={{
-                fontSize: 9,
-                lineHeight: 1,
-                fontWeight: 'bold',
-                color: done ? resultColor : 'transparent',
-                textShadow: done ? `0 0 6px ${resultColor}` : 'none',
-              }}>
+              <span
+                style={{
+                  fontFamily: "'Noto Serif JP', serif",
+                  fontSize: 9, lineHeight: 1, fontWeight: 700,
+                  color: done ? resultColor : 'transparent',
+                  textShadow: done ? `0 0 6px ${resultColor}` : 'none',
+                }}
+              >
                 {done ? (won ? '勝' : draw ? '引' : '負') : '·'}
               </span>
             </div>

@@ -21,7 +21,7 @@ export function Home() {
       setRoomId(roomId);
       setMyRole('host');
       navigate(`/room/${roomId}`);
-    } catch (e) {
+    } catch {
       setError('ルーム作成に失敗しました');
     } finally {
       setLoading(false);
@@ -44,7 +44,7 @@ export function Home() {
       setRoomId(code);
       setMyRole('guest');
       navigate(`/room/${code}`);
-    } catch (e) {
+    } catch {
       setError('参加に失敗しました');
     } finally {
       setLoading(false);
@@ -52,66 +52,113 @@ export function Home() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-8 p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center gap-10 p-6">
 
-      {/* Title */}
-      <div className="flex flex-col items-center gap-2">
-        <div className="text-6xl animate-dragon-glow">龍</div>
-        <h1 className="text-4xl font-bold tracking-widest neon-text-red" style={{ fontFamily: 'serif' }}>
+      {/* Title block */}
+      <div className="flex flex-col items-center gap-4">
+        <div
+          className="animate-dragon-glow"
+          style={{ fontSize: 96, lineHeight: 1, fontFamily: 'serif' }}
+        >
+          龍
+        </div>
+        <h1
+          className="font-black tracking-widest"
+          style={{
+            fontFamily: "'Noto Serif JP', serif",
+            fontSize: 56,
+            color: '#C41830',
+            textShadow: '0 0 20px rgba(196,24,48,0.6), 0 0 50px rgba(196,24,48,0.25)',
+            letterSpacing: '0.18em',
+          }}
+        >
           九龍戦術
         </h1>
-        <p className="text-sm tracking-widest" style={{ color: '#666' }}>
-          KOWLOON TACTICAL
+        <p
+          style={{
+            fontFamily: "'Cinzel', serif",
+            fontSize: 13,
+            letterSpacing: '0.35em',
+            color: '#5C4008',
+          }}
+        >
+          KOWLOON  TACTICAL
         </p>
       </div>
 
-      {/* Create room */}
-      <div className="flex flex-col items-center gap-3 w-full max-w-xs">
+      {/* Main panel */}
+      <div
+        className="panel-ornate flex flex-col items-center gap-5 w-full"
+        style={{ maxWidth: 420, padding: '2.5rem 2rem' }}
+      >
+        {/* Create */}
         <button
           onClick={handleCreate}
           disabled={loading}
-          className="w-full py-3 rounded font-bold tracking-widest text-sm uppercase transition-all hover:scale-105 active:scale-95"
+          className="w-full transition-all hover:scale-105 active:scale-95"
           style={{
+            padding: '14px 0',
             background: 'transparent',
-            border: '1px solid #ff2d55',
-            color: '#ff2d55',
-            boxShadow: '0 0 12px rgba(255,45,85,0.3)',
+            border: '2px solid #C41830',
+            color: '#C41830',
+            boxShadow: '0 0 16px rgba(196,24,48,0.3), inset 0 0 16px rgba(196,24,48,0.04)',
+            fontFamily: "'Noto Serif JP', serif",
+            fontSize: 16,
+            fontWeight: 700,
+            letterSpacing: '0.2em',
+            cursor: loading ? 'wait' : 'pointer',
           }}
         >
           {loading ? '…' : '対戦ルームを作成'}
         </button>
 
-        <div className="flex items-center gap-2 w-full">
-          <div className="flex-1 h-px" style={{ background: '#2a2a3a' }} />
-          <span className="text-xs" style={{ color: '#444' }}>OR</span>
-          <div className="flex-1 h-px" style={{ background: '#2a2a3a' }} />
+        {/* Divider */}
+        <div className="flex items-center gap-3 w-full">
+          <div style={{ flex: 1, height: 1, background: 'linear-gradient(to right, transparent, #3A2808)' }} />
+          <span style={{ fontFamily: "'Cinzel', serif", fontSize: 11, color: '#3A2808', letterSpacing: '0.2em' }}>OR</span>
+          <div style={{ flex: 1, height: 1, background: 'linear-gradient(to left, transparent, #3A2808)' }} />
         </div>
 
-        {/* Join room */}
-        <div className="flex gap-2 w-full">
+        {/* Join */}
+        <div className="flex gap-3 w-full">
           <input
             value={joinCode}
-            onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+            onChange={e => setJoinCode(e.target.value.toUpperCase())}
             placeholder="ROOM CODE"
             maxLength={6}
-            className="flex-1 px-3 py-2 rounded text-sm text-center tracking-widest font-bold uppercase"
             style={{
-              background: '#0f0f1a',
-              border: '1px solid #2a2a3a',
-              color: '#00e5ff',
+              flex: 1,
+              padding: '12px 14px',
+              background: '#09070E',
+              border: '1px solid #3A2808',
+              color: '#3EA878',
+              fontFamily: "'Cinzel', serif",
+              fontSize: 16,
+              fontWeight: 700,
+              letterSpacing: '0.25em',
+              textAlign: 'center',
               outline: 'none',
             }}
-            onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
+            onFocus={e => { e.currentTarget.style.borderColor = '#C89614'; e.currentTarget.style.boxShadow = '0 0 10px rgba(200,150,20,0.2)'; }}
+            onBlur={e => { e.currentTarget.style.borderColor = '#3A2808'; e.currentTarget.style.boxShadow = 'none'; }}
+            onKeyDown={e => e.key === 'Enter' && handleJoin()}
           />
           <button
             onClick={handleJoin}
             disabled={loading || !joinCode.trim()}
-            className="px-4 py-2 rounded font-bold text-sm tracking-widest transition-all hover:scale-105 active:scale-95"
+            className="transition-all hover:scale-105 active:scale-95"
             style={{
+              padding: '12px 22px',
               background: 'transparent',
-              border: '1px solid #00e5ff',
-              color: '#00e5ff',
-              boxShadow: '0 0 8px rgba(0,229,255,0.2)',
+              border: '2px solid #C89614',
+              color: '#C89614',
+              boxShadow: '0 0 12px rgba(200,150,20,0.25)',
+              fontFamily: "'Noto Serif JP', serif",
+              fontSize: 15,
+              fontWeight: 700,
+              letterSpacing: '0.15em',
+              cursor: (loading || !joinCode.trim()) ? 'not-allowed' : 'pointer',
+              opacity: (loading || !joinCode.trim()) ? 0.45 : 1,
             }}
           >
             参加
@@ -119,14 +166,26 @@ export function Home() {
         </div>
 
         {error && (
-          <p className="text-xs neon-text-red">{error}</p>
+          <p style={{ color: '#C41830', fontSize: 13, textShadow: '0 0 8px rgba(196,24,48,0.5)' }}>
+            {error}
+          </p>
         )}
       </div>
 
       {/* Rule summary */}
-      <div className="max-w-xs text-center" style={{ color: '#444', fontSize: '11px', lineHeight: 1.8 }}>
-        <p>1〜9のタイルで9ラウンド対決</p>
-        <p>大きい数が勝ち　※ <span style={{ color: '#ffd700' }}>1は9に勝つ</span></p>
+      <div
+        style={{
+          maxWidth: 380,
+          textAlign: 'center',
+          color: '#5C4008',
+          fontSize: 13,
+          lineHeight: 2.2,
+          fontFamily: "'Noto Serif JP', serif",
+          letterSpacing: '0.05em',
+        }}
+      >
+        <p>一から九のタイルで九ラウンド対決</p>
+        <p>大きい数が勝ち　―　<span style={{ color: '#C89614' }}>一は九に勝つ</span></p>
         <p>相手の手札は非公開</p>
       </div>
     </div>

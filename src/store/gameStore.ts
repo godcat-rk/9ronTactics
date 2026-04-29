@@ -12,7 +12,7 @@ interface GameState {
   setRoomId: (id: string) => void;
   setMyRole: (role: PlayerRole) => void;
   setMyUid: (uid: string) => void;
-  selectTile: (tile: Tile) => void;
+  selectTile: (tile: Tile | null) => void;
   setSubmitted: (v: boolean) => void;
   reset: () => void;
 }

@@ -4,7 +4,7 @@ import { useGameStore } from '../store/gameStore';
 import { subscribeToRoom, submitTile, requestRematch } from '../lib/roomService';
 import { ensureAuth } from '../lib/firebase';
 import { joinRoom } from '../lib/roomService';
-import { getGameWinner, isOdd, TOTAL_ROUNDS } from '../lib/gameLogic';
+import { getGameWinner, isOdd, TOTAL_ROUNDS, countScores } from '../lib/gameLogic';
 import { playSuspenseTicks, playReveal, playWin, playLose, playDraw } from '../lib/sounds';
 import { TileHand } from '../components/TileHand';
 import { Arena } from '../components/Arena';
@@ -152,6 +152,9 @@ export function Game() {
         [revealSnapshot.roundNumber]: { ...rounds[revealSnapshot.roundNumber], outcome: null as null },
       }
     : rounds;
+  const displayScores = (arenaPhase !== 'active' && revealSnapshot)
+    ? countScores(displayRounds)
+    : room.scores;
 
   const usedTiles = Object.values(displayRounds)
     .filter((r) => r.outcome != null)
@@ -284,7 +287,7 @@ export function Game() {
 
       <MatchProgress rounds={displayRounds} currentRound={room.currentRound} myRole={myRole!} />
 
-      <ScoreBoard scores={room.scores} myRole={myRole!} />
+      <ScoreBoard scores={displayScores} myRole={myRole!} />
 
       <OpponentColorStock
         oddRemaining={opponentOddRemaining}

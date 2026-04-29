@@ -52,113 +52,66 @@ export function Home() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-10 p-6">
+    <div className="min-h-screen flex flex-col items-center justify-center gap-8 p-4">
 
-      {/* Title block */}
-      <div className="flex flex-col items-center gap-4">
-        <div
-          className="animate-dragon-glow"
-          style={{ fontSize: 96, lineHeight: 1, fontFamily: 'serif' }}
-        >
-          龍
-        </div>
-        <h1
-          className="font-black tracking-widest"
-          style={{
-            fontFamily: "'Noto Serif JP', serif",
-            fontSize: 56,
-            color: '#C41830',
-            textShadow: '0 0 20px rgba(196,24,48,0.6), 0 0 50px rgba(196,24,48,0.25)',
-            letterSpacing: '0.18em',
-          }}
-        >
+      {/* Title */}
+      <div className="flex flex-col items-center gap-2">
+        <div className="text-8xl animate-dragon-glow">龍</div>
+        <h1 className="text-5xl font-bold tracking-widest neon-text-red" style={{ fontFamily: 'serif' }}>
           九龍戦術
         </h1>
-        <p
-          style={{
-            fontFamily: "'Cinzel', serif",
-            fontSize: 13,
-            letterSpacing: '0.35em',
-            color: '#5C4008',
-          }}
-        >
-          KOWLOON  TACTICAL
+        <p className="text-base tracking-widest" style={{ color: '#666' }}>
+          KOWLOON TACTICAL
         </p>
       </div>
 
-      {/* Main panel */}
-      <div
-        className="panel-ornate flex flex-col items-center gap-5 w-full"
-        style={{ maxWidth: 420, padding: '2.5rem 2rem' }}
-      >
-        {/* Create */}
+      {/* Create room */}
+      <div className="flex flex-col items-center gap-3 w-full max-w-sm">
         <button
           onClick={handleCreate}
           disabled={loading}
-          className="w-full transition-all hover:scale-105 active:scale-95"
+          className="w-full py-3 rounded font-bold tracking-widest text-sm uppercase transition-all hover:scale-105 active:scale-95"
           style={{
-            padding: '14px 0',
             background: 'transparent',
-            border: '2px solid #C41830',
-            color: '#C41830',
-            boxShadow: '0 0 16px rgba(196,24,48,0.3), inset 0 0 16px rgba(196,24,48,0.04)',
-            fontFamily: "'Noto Serif JP', serif",
-            fontSize: 16,
-            fontWeight: 700,
-            letterSpacing: '0.2em',
-            cursor: loading ? 'wait' : 'pointer',
+            border: '1px solid #ff2d55',
+            color: '#ff2d55',
+            boxShadow: '0 0 12px rgba(255,45,85,0.3)',
           }}
         >
           {loading ? '…' : '対戦ルームを作成'}
         </button>
 
-        {/* Divider */}
-        <div className="flex items-center gap-3 w-full">
-          <div style={{ flex: 1, height: 1, background: 'linear-gradient(to right, transparent, #3A2808)' }} />
-          <span style={{ fontFamily: "'Cinzel', serif", fontSize: 11, color: '#3A2808', letterSpacing: '0.2em' }}>OR</span>
-          <div style={{ flex: 1, height: 1, background: 'linear-gradient(to left, transparent, #3A2808)' }} />
+        <div className="flex items-center gap-2 w-full">
+          <div className="flex-1 h-px" style={{ background: '#2a2a3a' }} />
+          <span className="text-xs" style={{ color: '#444' }}>OR</span>
+          <div className="flex-1 h-px" style={{ background: '#2a2a3a' }} />
         </div>
 
-        {/* Join */}
-        <div className="flex gap-3 w-full">
+        {/* Join room */}
+        <div className="flex gap-2 w-full">
           <input
             value={joinCode}
-            onChange={e => setJoinCode(e.target.value.toUpperCase())}
+            onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
             placeholder="ROOM CODE"
             maxLength={6}
+            className="flex-1 px-3 py-2 rounded text-sm text-center tracking-widest font-bold uppercase"
             style={{
-              flex: 1,
-              padding: '12px 14px',
-              background: '#09070E',
-              border: '1px solid #3A2808',
-              color: '#3EA878',
-              fontFamily: "'Cinzel', serif",
-              fontSize: 16,
-              fontWeight: 700,
-              letterSpacing: '0.25em',
-              textAlign: 'center',
+              background: '#0f0f1a',
+              border: '1px solid #2a2a3a',
+              color: '#00e5ff',
               outline: 'none',
             }}
-            onFocus={e => { e.currentTarget.style.borderColor = '#C89614'; e.currentTarget.style.boxShadow = '0 0 10px rgba(200,150,20,0.2)'; }}
-            onBlur={e => { e.currentTarget.style.borderColor = '#3A2808'; e.currentTarget.style.boxShadow = 'none'; }}
-            onKeyDown={e => e.key === 'Enter' && handleJoin()}
+            onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
           />
           <button
             onClick={handleJoin}
             disabled={loading || !joinCode.trim()}
-            className="transition-all hover:scale-105 active:scale-95"
+            className="px-4 py-2 rounded font-bold text-sm tracking-widest transition-all hover:scale-105 active:scale-95"
             style={{
-              padding: '12px 22px',
               background: 'transparent',
-              border: '2px solid #C89614',
-              color: '#C89614',
-              boxShadow: '0 0 12px rgba(200,150,20,0.25)',
-              fontFamily: "'Noto Serif JP', serif",
-              fontSize: 15,
-              fontWeight: 700,
-              letterSpacing: '0.15em',
-              cursor: (loading || !joinCode.trim()) ? 'not-allowed' : 'pointer',
-              opacity: (loading || !joinCode.trim()) ? 0.45 : 1,
+              border: '1px solid #00e5ff',
+              color: '#00e5ff',
+              boxShadow: '0 0 8px rgba(0,229,255,0.2)',
             }}
           >
             参加
@@ -166,63 +119,23 @@ export function Home() {
         </div>
 
         {error && (
-          <p style={{ color: '#C41830', fontSize: 13, textShadow: '0 0 8px rgba(196,24,48,0.5)' }}>
-            {error}
-          </p>
+          <p className="text-xs neon-text-red">{error}</p>
         )}
       </div>
 
       {/* Rule summary */}
-      <div
-        className="panel-ornate w-full"
-        style={{
-          maxWidth: 420,
-          padding: '1.5rem 2rem',
-          fontFamily: "'Noto Serif JP', serif",
-        }}
-      >
-        <p
-          style={{
-            fontFamily: "'Cinzel', serif",
-            fontSize: 11,
-            letterSpacing: '0.35em',
-            color: '#C89614',
-            textAlign: 'center',
-            marginBottom: '1rem',
-          }}
-        >
-          — HOW TO PLAY —
-        </p>
-        <ul
-          style={{
-            listStyle: 'none',
-            padding: 0,
-            margin: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.6rem',
-          }}
-        >
-          {([
-            ['', '相手より大きい数字を出したら勝ちだよ！'],
-            ['', '相手の出した数字は不明で、勝敗だけわかるよ！'],
-            ['', '１は９に勝てるよ！９を出してくるタイミングを読んで大逆転できるよ！'],
-            ['', '全部で９ラウンドあるよ！勝ちラウンドが多かったプレイヤーが勝利するよ！'],
-            ['', 'バグを見つけたらねこまで連絡してね！'],
-          ] as [string, string][]).map(([icon, text], i) => (
-            <li
-              key={i}
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '0.6rem',
-                fontSize: 13,
-                color: i === 4 ? '#5C4008' : '#A08040',
-                lineHeight: 1.7,
-              }}
-            >
-              <span style={{ flexShrink: 0 }}>{icon}</span>
-              <span>{text}</span>
+      <div className="w-full max-w-sm" style={{ border: '1px solid #1e1e2e', padding: '1rem 1.25rem' }}>
+        <p className="text-xs tracking-widest text-center mb-3" style={{ color: '#555' }}>HOW TO PLAY</p>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {[
+            '相手より大きい数字を出したら勝ちだよ！',
+            '相手の出した数字は不明で、勝敗だけわかるよ！',
+            '１は９に勝てるよ！９を出してくるタイミングを読んで大逆転できるよ！',
+            '全部で９ラウンドあるよ！勝ちラウンドが多かったプレイヤーが勝利するよ！',
+            'バグを見つけたらねこまで連絡してね！',
+          ].map((text, i) => (
+            <li key={i} style={{ fontSize: '11px', color: i === 4 ? '#444' : '#666', lineHeight: 1.7 }}>
+              · {text}
             </li>
           ))}
         </ul>

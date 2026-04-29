@@ -11,104 +11,50 @@ interface Props {
 }
 
 export function Arena({ round, currentRound, myRole, phase }: Props) {
-  const myTile          = myRole === 'host' ? round?.hostTile : round?.guestTile;
-  const opponentTile    = myRole === 'host' ? round?.guestTile : round?.hostTile;
+  const myTile = myRole === 'host' ? round?.hostTile : round?.guestTile;
+  const opponentTile = myRole === 'host' ? round?.guestTile : round?.hostTile;
   const opponentHasTile = opponentTile != null;
-  const bothSubmitted   = myTile != null && opponentHasTile;
-  const isSuspense      = bothSubmitted && phase === 'suspense';
+  const bothSubmitted = myTile != null && opponentHasTile;
+  const isSuspense = bothSubmitted && phase === 'suspense';
   const showOpponentColor = bothSubmitted && (phase === 'colors' || phase === 'result');
-  const showResult        = bothSubmitted && phase === 'result' && round?.outcome != null;
+  const showResult = bothSubmitted && phase === 'result' && round?.outcome != null;
   const myOutcome = round?.outcome === myRole;
-  const draw      = round?.outcome === 'draw';
-
-  const resultColor = myOutcome ? '#C89614' : draw ? '#7A7060' : '#7B44CC';
-  const resultLabel = myOutcome ? 'WIN' : draw ? 'DRAW' : 'LOSE';
+  const draw = round?.outcome === 'draw';
+  const resultColor = myOutcome ? '#ffd700' : draw ? '#888888' : '#bf44ff';
 
   return (
-    <div
-      className="panel-ornate flex flex-col items-center gap-5"
-      style={{ width: '100%', maxWidth: 440, padding: '1.5rem 1rem' }}
-    >
-      {/* Round indicator */}
-      <div className="flex items-center gap-3">
-        <span style={{ fontFamily: "'Cinzel', serif", fontSize: 11, letterSpacing: '0.3em', color: '#5C4008' }}>
-          ROUND
-        </span>
-        <span
-          style={{
-            fontFamily: "'Cinzel', serif",
-            fontSize: 32,
-            fontWeight: 700,
-            color: '#C89614',
-            textShadow: '0 0 12px rgba(200,150,20,0.6)',
-            lineHeight: 1,
-          }}
-        >
-          {currentRound}
-        </span>
-        <span style={{ fontSize: 14, color: '#3A2808' }}>/ 9</span>
+    <div className="flex w-full max-w-sm flex-col items-center gap-3">
+      <div className="flex items-center gap-2">
+        <span className="text-xs tracking-widest uppercase" style={{ color: '#666' }}>ROUND</span>
+        <span className="text-3xl font-bold neon-text-gold">{currentRound}</span>
+        <span className="text-xs" style={{ color: '#666' }}>/ 9</span>
       </div>
 
-      {/* Battle area */}
-      <div className="flex w-full flex-col items-center gap-4">
-
-        {/* Opponent tile */}
+      <div className="flex w-full flex-col items-center gap-3">
         <div className="flex flex-col items-center gap-2 opacity-90">
-          <span style={{ fontFamily: "'Cinzel', serif", fontSize: 10, letterSpacing: '0.25em', color: '#5C4008' }}>
-            OPPONENT
-          </span>
+          <span className="text-xs tracking-widest" style={{ color: '#888' }}>OPPONENT</span>
           <div className={isSuspense ? 'animate-tile-shake' : ''}>
             <OpponentTile tile={opponentTile ?? null} showColor={showOpponentColor} />
           </div>
         </div>
 
-        {/* Center: result / reveal / dragon */}
-        <div style={{ height: 52, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="flex h-12 flex-col items-center justify-center">
           {showResult ? (
-            <span
-              className="animate-result-pop"
-              style={{
-                fontFamily: "'Cinzel', serif",
-                fontSize: 38,
-                fontWeight: 900,
-                color: resultColor,
-                textShadow: `0 0 28px ${resultColor}, 0 0 60px ${resultColor}66`,
-                letterSpacing: '0.2em',
-              }}
-            >
-              {resultLabel}
+            <span className="text-4xl font-bold tracking-widest animate-result-pop" style={{ color: resultColor, textShadow: `0 0 24px ${resultColor}` }}>
+              {myOutcome ? 'WIN' : draw ? 'DRAW' : 'LOSE'}
             </span>
           ) : bothSubmitted && phase === 'colors' ? (
-            <span
-              style={{
-                fontFamily: "'Cinzel', serif",
-                fontSize: 15,
-                fontWeight: 700,
-                letterSpacing: '0.3em',
-                color: '#C89614',
-                textShadow: '0 0 12px rgba(200,150,20,0.7)',
-              }}
-            >
-              REVEAL
-            </span>
+            <span className="text-base font-bold tracking-widest neon-text-gold">REVEAL</span>
           ) : (
-            <span
-              className={isSuspense ? 'animate-tile-shake' : 'animate-dragon-glow'}
-              style={{ fontSize: 30, fontFamily: 'serif' }}
-            >
-              龍
-            </span>
+            <span className={`text-3xl font-bold ${isSuspense ? 'animate-tile-shake' : 'animate-dragon-glow'}`}>龍</span>
           )}
         </div>
 
-        {/* My tile */}
         <div className="flex flex-col items-center gap-2">
           <div className={isSuspense ? 'animate-tile-shake' : ''}>
             <MyTile tile={myTile ?? null} highlight={showResult ? resultColor : null} />
           </div>
-          <span style={{ fontFamily: "'Cinzel', serif", fontSize: 10, letterSpacing: '0.25em', color: '#5C4008' }}>
-            YOU
-          </span>
+          <span className="text-xs tracking-widest" style={{ color: '#888' }}>YOU</span>
         </div>
       </div>
     </div>
@@ -119,14 +65,10 @@ function OpponentTile({ tile, showColor }: { tile: Tile | null; showColor: boole
   if (tile == null) {
     return (
       <div
-        style={{
-          width: 64, height: 90,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: '#0A0810', border: '1px dashed #2A1E0A',
-          color: '#3A2808', fontSize: 22, fontFamily: "'Noto Serif JP', serif",
-        }}
+        className="flex h-24 w-16 items-center justify-center rounded text-2xl font-bold"
+        style={{ background: '#0f0f1a', border: '1px dashed #2a2a3a', color: '#666' }}
       >
-        ？
+        ?
       </div>
     );
   }
@@ -134,34 +76,29 @@ function OpponentTile({ tile, showColor }: { tile: Tile | null; showColor: boole
   if (!showColor) {
     return (
       <div
-        style={{
-          width: 64, height: 90,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: '#0A0810', border: '1px solid #2A1E0A',
-          color: '#3A2808', fontSize: 12,
-          fontFamily: "'Cinzel', serif", letterSpacing: '0.1em',
-        }}
+        className="flex h-20 w-14 items-center justify-center rounded text-sm font-bold tracking-widest"
+        style={{ background: '#0f0f1a', border: '1px solid #666', color: '#888' }}
       >
         SET
       </div>
     );
   }
 
-  const odd   = isOdd(tile);
-  const color = odd ? '#C84040' : '#3EA878';
-  const bg    = odd ? '#120808' : '#080F0C';
+  const odd = isOdd(tile);
+  const color = odd ? '#ff2d55' : '#00e5ff';
+  const bg = odd ? '#1a0a0f' : '#0a0f1a';
 
   return (
     <div
-      className="animate-reveal flex flex-col items-center justify-center font-bold"
+      className="flex h-24 w-16 animate-reveal flex-col items-center justify-center rounded font-bold"
       style={{
-        width: 64, height: 90,
-        background: bg, border: `2px solid ${color}`,
-        boxShadow: `0 0 18px ${color}55`,
-        color, gap: 4, fontFamily: "'Noto Serif JP', serif",
+        background: bg,
+        border: `2px solid ${color}`,
+        boxShadow: `0 0 14px ${color}66`,
+        color,
       }}
     >
-      <span style={{ fontSize: 28, fontWeight: 700 }}>{odd ? '奇' : '偶'}</span>
+      <span className="text-lg font-bold">{odd ? '奇' : '偶'}</span>
     </div>
   );
 }
@@ -170,32 +107,27 @@ function MyTile({ tile, highlight }: { tile: Tile | null; highlight: string | nu
   if (tile == null) {
     return (
       <div
-        style={{
-          width: 72, height: 100,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: '#0A0810', border: '1px dashed #2A1E0A',
-          color: '#3A2808', fontSize: 26, fontFamily: "'Noto Serif JP', serif",
-        }}
+        className="flex h-24 w-16 items-center justify-center rounded text-3xl font-bold"
+        style={{ background: '#0f0f1a', border: '1px dashed #2a2a3a', color: '#666' }}
       >
-        ―
+        -
       </div>
     );
   }
 
-  const odd         = isOdd(tile);
-  const color       = odd ? '#C84040' : '#3EA878';
-  const bg          = odd ? '#120808' : '#080F0C';
+  const odd = isOdd(tile);
+  const color = odd ? '#ff2d55' : '#00e5ff';
+  const bg = odd ? '#1a0a0f' : '#0a0f1a';
   const borderColor = highlight ?? color;
 
   return (
     <div
+      className="flex h-28 w-20 items-center justify-center rounded text-4xl font-bold"
       style={{
-        width: 72, height: 100,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: bg, border: `2px solid ${borderColor}`,
-        boxShadow: `0 0 20px ${borderColor}66`,
-        color, fontSize: 38, fontWeight: 700,
-        fontFamily: "'Noto Serif JP', serif",
+        background: bg,
+        border: `2px solid ${borderColor}`,
+        boxShadow: `0 0 16px ${borderColor}66`,
+        color,
       }}
     >
       {tile}

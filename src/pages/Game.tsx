@@ -28,10 +28,10 @@ export function Game() {
     setRoom, setRoomId, setMyRole, setMyUid, selectTile, setSubmitted,
   } = useGameStore();
 
-  const [copied, setCopied]                     = useState(false);
-  const [copiedId, setCopiedId]                 = useState(false);
-  const [arenaPhase, setArenaPhase]             = useState<ArenaPhase>('active');
-  const [revealSnapshot, setRevealSnapshot]     = useState<RevealSnapshot | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [copiedId, setCopiedId] = useState(false);
+  const [arenaPhase, setArenaPhase] = useState<ArenaPhase>('active');
+  const [revealSnapshot, setRevealSnapshot] = useState<RevealSnapshot | null>(null);
   const [rematchRequested, setRematchRequested] = useState(false);
   const lastCompletedKeyRef = useRef<string | null>(null);
 
@@ -130,9 +130,7 @@ export function Game() {
   if (!room) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="animate-pulse-neon" style={{ color: '#C89614', fontFamily: "'Noto Serif JP', serif", fontSize: 16, letterSpacing: '0.15em' }}>
-          接続中…
-        </p>
+        <p className="animate-pulse-neon neon-text-gold">接続中…</p>
       </div>
     );
   }
@@ -172,62 +170,41 @@ export function Game() {
   const iWon   = winner === myRole;
   const isDraw = winner === 'draw';
 
-  // ── Waiting screen ───────────────────────────────────────────────
+  // ── Waiting screen ──────────────────────────────────────────────
   if (room.status === 'waiting') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-8 p-6">
-        <div className="animate-dragon-glow" style={{ fontSize: 72, fontFamily: 'serif' }}>龍</div>
-        <h2 style={{ fontFamily: "'Noto Serif JP', serif", fontSize: 22, color: '#C89614', textShadow: '0 0 16px rgba(200,150,20,0.5)', letterSpacing: '0.15em' }}>
-          対戦相手を待っています
-        </h2>
-
-        <div className="panel-ornate flex flex-col items-center gap-4" style={{ padding: '2rem 2.5rem' }}>
-          <p style={{ fontFamily: "'Noto Serif JP', serif", fontSize: 13, color: '#5C4008', letterSpacing: '0.05em' }}>
-            このURLを相手に送ってください
-          </p>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-4">
+        <div className="text-5xl animate-dragon-glow">龍</div>
+        <h2 className="text-xl neon-text-gold tracking-widest">対戦相手を待っています</h2>
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-xs" style={{ color: '#666' }}>このURLを相手に送ってください</p>
           <button
             onClick={copyLink}
-            className="transition-all hover:scale-105"
+            className="px-6 py-2 rounded text-sm tracking-widest transition-all hover:scale-105"
             style={{
-              padding: '12px 28px',
               background: 'transparent',
-              border: '2px solid #C89614',
-              color: '#C89614',
-              boxShadow: '0 0 12px rgba(200,150,20,0.25)',
-              fontFamily: "'Noto Serif JP', serif",
-              fontSize: 14,
-              fontWeight: 700,
-              letterSpacing: '0.15em',
-              cursor: 'pointer',
+              border: '1px solid #ffd700',
+              color: '#ffd700',
+              boxShadow: '0 0 8px rgba(255,215,0,0.2)',
             }}
           >
             {copied ? 'コピーしました！' : 'URLをコピー'}
           </button>
-
-          <div className="flex items-center gap-3 mt-1">
-            <p style={{ fontFamily: "'Cinzel', serif", fontSize: 20, fontWeight: 700, color: '#3EA878', textShadow: '0 0 10px rgba(62,168,120,0.5)', letterSpacing: '0.2em' }}>
-              {roomId}
-            </p>
+          <div className="flex items-center gap-2 mt-1">
+            <p className="text-lg font-bold neon-text-cyan tracking-widest">{roomId}</p>
             <button
               onClick={copyRoomId}
-              className="transition-all hover:scale-105"
+              className="px-3 py-1 rounded text-xs tracking-widest transition-all hover:scale-105"
               style={{
-                padding: '6px 14px',
                 background: 'transparent',
-                border: `1px solid ${copiedId ? '#3EA878' : '#2A1E0A'}`,
-                color: copiedId ? '#3EA878' : '#3A2808',
-                fontFamily: "'Cinzel', serif",
-                fontSize: 11,
-                letterSpacing: '0.1em',
-                cursor: 'pointer',
+                border: '1px solid #00e5ff55',
+                color: copiedId ? '#00e5ff' : '#555',
               }}
             >
-              {copiedId ? 'コピー済' : 'IDコピー'}
+              {copiedId ? 'コピー済み' : 'IDコピー'}
             </button>
           </div>
-          <p style={{ fontSize: 11, color: '#2A1E0A', fontFamily: "'Noto Serif JP', serif" }}>
-            またはホーム画面でID入力
-          </p>
+          <p className="text-[10px]" style={{ color: '#333' }}>またはホーム画面でID入力</p>
         </div>
       </div>
     );
@@ -245,59 +222,43 @@ export function Game() {
       await requestRematch(roomId, myRole);
     }
 
-    const resultColor = iWon ? '#C89614' : isDraw ? '#6A6050' : '#7B44CC';
-    const resultText  = iWon ? '勝利' : isDraw ? '引き分け' : '敗北';
-
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-7 p-6">
-        <div className="animate-dragon-glow" style={{ fontSize: 64, fontFamily: 'serif' }}>龍</div>
-
+      <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-4">
+        <div className="text-6xl animate-dragon-glow">龍</div>
         <h2
+          className="text-3xl font-bold tracking-widest"
           style={{
-            fontFamily: "'Noto Serif JP', serif",
-            fontSize: 40,
-            fontWeight: 900,
-            color: resultColor,
-            textShadow: `0 0 24px ${resultColor}, 0 0 60px ${resultColor}55`,
-            letterSpacing: '0.15em',
+            color: iWon ? '#ffd700' : isDraw ? '#888888' : '#bf44ff',
+            textShadow: `0 0 20px ${iWon ? '#ffd700' : isDraw ? '#888888' : '#bf44ff'}`,
           }}
         >
-          {resultText}
+          {iWon ? '勝利！' : isDraw ? '引き分け' : '敗北'}
         </h2>
+        <ScoreBoard scores={room.scores} myRole={myRole!} />
+        <MatchProgress rounds={room.rounds ?? {}} currentRound={room.currentRound} myRole={myRole!} isFinished />
 
-        <div className="panel-ornate flex flex-col items-center gap-6" style={{ padding: '2rem 2.5rem', width: '100%', maxWidth: 500 }}>
-          <ScoreBoard scores={room.scores} myRole={myRole!} />
-          <MatchProgress rounds={room.rounds ?? {}} currentRound={room.currentRound} myRole={myRole!} isFinished />
-        </div>
-
-        <div className="flex flex-col items-center gap-3 mt-1">
+        <div className="flex flex-col items-center gap-2 mt-2">
           {!iRequestedRematch ? (
             <button
               onClick={handleRematch}
               disabled={rematchRequested}
-              className="transition-all hover:scale-105 active:scale-95"
+              className="px-8 py-3 rounded font-bold tracking-widest text-sm transition-all hover:scale-105 active:scale-95"
               style={{
-                padding: '14px 36px',
                 background: 'transparent',
-                border: '2px solid #C89614',
-                color: '#C89614',
-                boxShadow: '0 0 16px rgba(200,150,20,0.3)',
-                fontFamily: "'Noto Serif JP', serif",
-                fontSize: 16,
-                fontWeight: 700,
-                letterSpacing: '0.2em',
-                cursor: 'pointer',
+                border: '1px solid #ffd700',
+                color: '#ffd700',
+                boxShadow: '0 0 12px rgba(255,215,0,0.3)',
               }}
             >
               再戦する
             </button>
           ) : (
-            <p className="animate-pulse-neon" style={{ fontFamily: "'Noto Serif JP', serif", fontSize: 14, color: '#C89614', letterSpacing: '0.1em' }}>
+            <p className="text-sm tracking-widest animate-pulse" style={{ color: '#ffd700' }}>
               {oppRequestedRematch ? '再戦開始…' : '相手の返答待ち…'}
             </p>
           )}
           {!iRequestedRematch && oppRequestedRematch && (
-            <p style={{ fontFamily: "'Noto Serif JP', serif", fontSize: 12, color: '#3EA878', letterSpacing: '0.08em' }}>
+            <p className="text-xs tracking-widest" style={{ color: '#00e5ff' }}>
               相手が再戦を希望しています
             </p>
           )}
@@ -305,17 +266,8 @@ export function Game() {
 
         <button
           onClick={() => navigate('/')}
-          className="transition-all hover:opacity-70"
-          style={{
-            padding: '10px 24px',
-            background: 'transparent',
-            border: '1px solid #2A1E0A',
-            color: '#3A2808',
-            fontFamily: "'Noto Serif JP', serif",
-            fontSize: 13,
-            letterSpacing: '0.1em',
-            cursor: 'pointer',
-          }}
+          className="px-6 py-2 rounded text-sm tracking-widest"
+          style={{ border: '1px solid #333', color: '#555' }}
         >
           ホームへ戻る
         </button>
@@ -328,12 +280,12 @@ export function Game() {
     <div className="min-h-screen flex flex-col items-center gap-6 p-4 pt-8">
 
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <span className="animate-dragon-glow" style={{ fontSize: 26, fontFamily: 'serif' }}>龍</span>
-        <span style={{ fontFamily: "'Noto Serif JP', serif", fontSize: 18, fontWeight: 700, color: '#C41830', textShadow: '0 0 12px rgba(196,24,48,0.5)', letterSpacing: '0.15em' }}>
+      <div className="flex items-center gap-3">
+        <span className="text-3xl animate-dragon-glow">龍</span>
+        <span className="text-xl font-bold tracking-widest neon-text-red" style={{ fontFamily: 'serif' }}>
           九龍戦術
         </span>
-        <span style={{ fontFamily: "'Cinzel', serif", fontSize: 11, padding: '3px 10px', border: '1px solid #2A1E0A', color: '#3A2808', letterSpacing: '0.15em' }}>
+        <span className="text-xs px-2 py-0.5 rounded" style={{ border: '1px solid #2a2a3a', color: '#444' }}>
           {roomId}
         </span>
       </div>
@@ -354,33 +306,28 @@ export function Game() {
         phase={arenaPhase}
       />
 
+      {/* Submit button — always visible above tiles */}
+      <button
+        onClick={handleSubmit}
+        disabled={!selectedTile || submitted}
+        className="px-10 py-4 rounded font-bold tracking-widest text-base uppercase transition-all hover:scale-105 active:scale-95"
+        style={{
+          background: 'transparent',
+          border: `1px solid ${selectedTile && !submitted ? '#ffd700' : '#2a2a3a'}`,
+          color: selectedTile && !submitted ? '#ffd700' : '#444',
+          boxShadow: selectedTile && !submitted ? '0 0 12px rgba(255,215,0,0.4)' : 'none',
+          cursor: selectedTile && !submitted ? 'pointer' : 'not-allowed',
+        }}
+      >
+        {submitted ? '待機中…' : selectedTile ? `${selectedTile} を出す` : 'タイルを選択してください'}
+      </button>
+
       <TileHand
         usedTiles={usedTiles}
         selectedTile={selectedTile}
         submitted={submitted}
         onSelect={selectTile}
       />
-
-      {!submitted && selectedTile && (
-        <button
-          onClick={handleSubmit}
-          className="transition-all hover:scale-105 active:scale-95"
-          style={{
-            padding: '14px 36px',
-            background: 'transparent',
-            border: '2px solid #C41830',
-            color: '#C41830',
-            boxShadow: '0 0 16px rgba(196,24,48,0.4)',
-            fontFamily: "'Noto Serif JP', serif",
-            fontSize: 16,
-            fontWeight: 700,
-            letterSpacing: '0.2em',
-            cursor: 'pointer',
-          }}
-        >
-          {selectedTile} を出す
-        </button>
-      )}
 
     </div>
   );

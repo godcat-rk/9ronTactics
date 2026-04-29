@@ -10,83 +10,40 @@ interface Props {
 
 export function TileHand({ usedTiles, selectedTile, submitted, onSelect }: Props) {
   return (
-    <div className="flex flex-col items-center gap-4">
-      <p
-        style={{
-          fontFamily: "'Cinzel', serif",
-          fontSize: 11,
-          letterSpacing: '0.3em',
-          color: '#5C4008',
-          textTransform: 'uppercase',
-        }}
-      >
-        Your Tiles
-      </p>
-      <div className="flex gap-2.5 flex-wrap justify-center">
+    <div className="flex flex-col items-center gap-3">
+      <p className="text-xs tracking-widest uppercase" style={{ color: '#888' }}>YOUR TILES</p>
+      <div className="flex gap-2 flex-wrap justify-center">
         {ALL_TILES.map((tile) => {
           const used = usedTiles.includes(tile);
           const selected = selectedTile === tile;
           const odd = isOdd(tile);
-
-          const baseColor  = odd ? '#C84040' : '#3EA878';
-          const borderNorm = odd ? '#4A1818' : '#1A4A34';
-          const borderSel  = odd ? '#C41830' : '#2A7055';
-          const bgColor    = odd ? '#120808' : '#080F0C';
-
           return (
             <button
               key={tile}
               onClick={() => !used && !submitted && onSelect(tile)}
-              className={`tile flex flex-col items-center justify-center font-bold relative
+              className={`tile w-16 h-20 rounded flex flex-col items-center justify-center font-bold text-2xl relative
                 ${used ? 'tile-used' : ''}
                 ${selected ? 'tile-selected' : ''}
               `}
               style={{
-                width: 52,
-                height: 72,
-                background: bgColor,
+                background: odd ? '#1a0a0f' : '#0a0f1a',
                 border: selected
-                  ? `2px solid ${borderSel}`
-                  : `1px solid ${borderNorm}`,
+                  ? `2px solid ${odd ? '#ff2d55' : '#00e5ff'}`
+                  : `1px solid ${odd ? '#3a1020' : '#103a4a'}`,
                 boxShadow: selected
-                  ? `0 0 16px ${borderSel}99, inset 0 0 10px ${borderSel}22`
+                  ? `0 0 12px ${odd ? '#ff2d55' : '#00e5ff'}, inset 0 0 8px ${odd ? 'rgba(255,45,85,0.2)' : 'rgba(0,229,255,0.2)'}`
                   : 'none',
-                color: baseColor,
-                fontFamily: "'Noto Serif JP', serif",
+                color: odd ? '#ff6680' : '#00e5ff',
               }}
             >
-              <span style={{ fontSize: 26, fontWeight: 700, lineHeight: 1 }}>{tile}</span>
+              <span>{tile}</span>
               {tile === 1 && (
-                <span
-                  style={{
-                    position: 'absolute',
-                    top: 2,
-                    right: 3,
-                    fontSize: 9,
-                    color: '#C89614',
-                    textShadow: '0 0 6px rgba(200,150,20,0.8)',
-                  }}
-                >
-                  ★
-                </span>
+                <span className="absolute -top-1 -right-1 text-xs" style={{ color: '#ffd700', fontSize: '8px' }}>★</span>
               )}
             </button>
           );
         })}
       </div>
-      {submitted && (
-        <p
-          className="animate-pulse-neon"
-          style={{
-            fontFamily: "'Noto Serif JP', serif",
-            fontSize: 14,
-            color: '#C89614',
-            letterSpacing: '0.1em',
-          }}
-        >
-          待機中… 相手の選択を待っています
-        </p>
-      )}
     </div>
   );
 }

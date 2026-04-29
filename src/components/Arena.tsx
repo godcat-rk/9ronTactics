@@ -38,19 +38,15 @@ export function Arena({ round, currentRound, myRole, phase }: Props) {
           </div>
         </div>
 
-        <div className="flex h-10 flex-col items-center justify-center">
-          {isSuspense ? (
-            <span className="text-sm font-bold tracking-widest animate-pulse-neon" style={{ color: '#ffd700' }}>
-              どっちだ…
-            </span>
-          ) : showResult ? (
-            <span className="text-xl font-bold tracking-widest animate-result-pop" style={{ color: resultColor, textShadow: `0 0 20px ${resultColor}` }}>
+        <div className="flex h-12 flex-col items-center justify-center">
+          {showResult ? (
+            <span className="text-3xl font-bold tracking-widest animate-result-pop" style={{ color: resultColor, textShadow: `0 0 24px ${resultColor}` }}>
               {myOutcome ? 'WIN' : draw ? 'DRAW' : 'LOSE'}
             </span>
           ) : bothSubmitted && phase === 'colors' ? (
-            <span className="text-xs tracking-widest neon-text-gold">REVEAL</span>
+            <span className="text-base font-bold tracking-widest neon-text-gold">REVEAL</span>
           ) : (
-            <span className="text-2xl font-bold animate-dragon-glow">龍</span>
+            <span className={`text-2xl font-bold ${isSuspense ? 'animate-tile-shake' : 'animate-dragon-glow'}`}>龍</span>
           )}
         </div>
 

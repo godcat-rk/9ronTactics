@@ -36,7 +36,7 @@ export function playSuspenseTicks() {
   if (!audioCtx) return;
   const now = audioCtx.currentTime;
   // 加速するティック: 間隔が徐々に縮まって緊張感を演出
-  [0, 0.30, 0.56, 0.78, 0.96, 1.10, 1.20, 1.27, 1.32, 1.36].forEach((t) => {
+  [0, 0.32, 0.60, 0.84, 1.04, 1.20, 1.32, 1.42, 1.50, 1.56, 1.60, 1.63, 1.65, 1.67].forEach((t) => {
     note(audioCtx, 880, now + t, 0.06, 0.13, 'square');
   });
 }

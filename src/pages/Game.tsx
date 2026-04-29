@@ -88,7 +88,7 @@ export function Game() {
     const colorsTimer = window.setTimeout(() => {
       setArenaPhase('colors');
       playReveal();
-    }, 1400);
+    }, 1700);
 
     const resultTimer = window.setTimeout(() => {
       setArenaPhase('result');
@@ -96,14 +96,14 @@ export function Game() {
       if (outcome === myRole) playWin();
       else if (outcome === 'draw') playDraw();
       else playLose();
-    }, 2400);
+    }, 2800);
 
     const clearTimer = window.setTimeout(() => {
       setRevealSnapshot(null);
       setArenaPhase('active');
       setSubmitted(false);
       selectTile(null);
-    }, 4200);
+    }, 4600);
 
     return () => {
       window.clearTimeout(colorsTimer);

@@ -174,19 +174,58 @@ export function Home() {
 
       {/* Rule summary */}
       <div
+        className="panel-ornate w-full"
         style={{
-          maxWidth: 380,
-          textAlign: 'center',
-          color: '#5C4008',
-          fontSize: 13,
-          lineHeight: 2.2,
+          maxWidth: 420,
+          padding: '1.5rem 2rem',
           fontFamily: "'Noto Serif JP', serif",
-          letterSpacing: '0.05em',
         }}
       >
-        <p>一から九のタイルで九ラウンド対決</p>
-        <p>大きい数が勝ち　―　<span style={{ color: '#C89614' }}>一は九に勝つ</span></p>
-        <p>相手の手札は非公開</p>
+        <p
+          style={{
+            fontFamily: "'Cinzel', serif",
+            fontSize: 11,
+            letterSpacing: '0.35em',
+            color: '#C89614',
+            textAlign: 'center',
+            marginBottom: '1rem',
+          }}
+        >
+          — HOW TO PLAY —
+        </p>
+        <ul
+          style={{
+            listStyle: 'none',
+            padding: 0,
+            margin: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.6rem',
+          }}
+        >
+          {([
+            ['', '相手より大きい数字を出したら勝ちだよ！'],
+            ['', '相手の出した数字は不明で、勝敗だけわかるよ！'],
+            ['', '１は９に勝てるよ！９を出してくるタイミングを読んで大逆転できるよ！'],
+            ['', '全部で９ラウンドあるよ！勝ちラウンドが多かったプレイヤーが勝利するよ！'],
+            ['', 'バグを見つけたらねこまで連絡してね！'],
+          ] as [string, string][]).map(([icon, text], i) => (
+            <li
+              key={i}
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.6rem',
+                fontSize: 13,
+                color: i === 4 ? '#5C4008' : '#A08040',
+                lineHeight: 1.7,
+              }}
+            >
+              <span style={{ flexShrink: 0 }}>{icon}</span>
+              <span>{text}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );

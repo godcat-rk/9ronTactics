@@ -31,10 +31,8 @@ export function MatchProgress({ rounds, currentRound, myRole, isFinished = false
           return (
             <div
               key={n}
-              className="flex-1 flex flex-col items-center rounded"
+              className="flex-1 flex flex-col items-center rounded gap-[3px] py-1 px-0.5 sm:gap-[5px] sm:py-2"
               style={{
-                gap: 5,
-                padding: '8px 2px',
                 background: active ? '#141428' : '#0a0a14',
                 border: `1px solid ${done ? resultColor + '55' : active ? '#ffd70066' : '#181828'}`,
                 boxShadow: active ? '0 0 10px rgba(255,215,0,0.14)' : 'none',
@@ -42,31 +40,27 @@ export function MatchProgress({ rounds, currentRound, myRole, isFinished = false
                 transition: 'opacity 0.3s, border-color 0.3s',
               }}
             >
-              {/* Round number */}
-              <span style={{ fontSize: 11, lineHeight: 1, color: active ? '#ffd700' : done ? '#555' : '#2a2a3a' }}>
+              <span className="mp-n" style={{ color: active ? '#ffd700' : done ? '#555' : '#2a2a3a' }}>
                 {n}
               </span>
 
-              {/* Opponent tile */}
-              <div style={{ height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div className="mp-oh">
                 {isFinished && oppTile != null ? (
-                  <span style={{ fontSize: 17, fontWeight: 'bold', lineHeight: 1, color: oppColor ?? '#555', textShadow: oppColor ? `0 0 6px ${oppColor}` : 'none' }}>
+                  <span className="mp-ol" style={{ color: oppColor ?? '#555', textShadow: oppColor ? `0 0 6px ${oppColor}` : 'none' }}>
                     {oppTile}
                   </span>
                 ) : oppColor != null ? (
-                  <span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: 2, background: oppColor, boxShadow: `0 0 5px ${oppColor}` }} />
+                  <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: oppColor, boxShadow: `0 0 5px ${oppColor}` }} />
                 ) : (
-                  <span style={{ display: 'inline-block', width: 10, height: 10 }} />
+                  <span style={{ display: 'inline-block', width: 8, height: 8 }} />
                 )}
               </div>
 
-              {/* My tile */}
-              <span style={{ fontSize: 20, fontWeight: 'bold', lineHeight: 1, color: myColor ?? (active ? '#333' : '#1e1e2e') }}>
+              <span className="mp-ml" style={{ color: myColor ?? (active ? '#333' : '#1e1e2e') }}>
                 {myTile != null ? myTile : active ? '?' : '·'}
               </span>
 
-              {/* Result */}
-              <span style={{ fontSize: 11, lineHeight: 1, fontWeight: 'bold', color: done ? resultColor : 'transparent', textShadow: done ? `0 0 6px ${resultColor}` : 'none' }}>
+              <span className="mp-rl" style={{ color: done ? resultColor : 'transparent', textShadow: done ? `0 0 6px ${resultColor}` : 'none' }}>
                 {done ? (won ? '勝' : draw ? '引' : '負') : '·'}
               </span>
             </div>

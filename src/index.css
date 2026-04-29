@@ -147,3 +147,18 @@ body {
 .animate-result-pop {
   animation: result-pop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
+
+/* MatchProgress responsive cell font sizes */
+.mp-n  { font-size: 9px;  line-height: 1; }
+.mp-oh { height: 14px; display: flex; align-items: center; justify-content: center; }
+.mp-ol { font-size: 13px; font-weight: bold; line-height: 1; }
+.mp-ml { font-size: 16px; font-weight: bold; line-height: 1; }
+.mp-rl { font-size: 9px;  line-height: 1; font-weight: bold; }
+
+@media (min-width: 640px) {
+  .mp-n  { font-size: 11px; }
+  .mp-oh { height: 18px; }
+  .mp-ol { font-size: 17px; }
+  .mp-ml { font-size: 20px; }
+  .mp-rl { font-size: 11px; }
+}

@@ -12,7 +12,7 @@ export function TileHand({ usedTiles, selectedTile, submitted, onSelect }: Props
   return (
     <div className="flex flex-col items-center gap-3">
       <p className="text-xs tracking-widest uppercase" style={{ color: '#888' }}>YOUR TILES</p>
-      <div className="flex gap-2 flex-wrap justify-center">
+      <div className="flex gap-1 sm:gap-2 flex-wrap justify-center">
         {ALL_TILES.map((tile) => {
           const used = usedTiles.includes(tile);
           const selected = selectedTile === tile;
@@ -21,7 +21,7 @@ export function TileHand({ usedTiles, selectedTile, submitted, onSelect }: Props
             <button
               key={tile}
               onClick={() => !used && !submitted && onSelect(tile)}
-              className={`tile w-16 h-20 rounded flex flex-col items-center justify-center font-bold text-2xl relative
+              className={`tile w-10 h-14 sm:w-16 sm:h-20 rounded flex flex-col items-center justify-center font-bold text-xl sm:text-2xl relative
                 ${used ? 'tile-used' : ''}
                 ${selected ? 'tile-selected' : ''}
               `}

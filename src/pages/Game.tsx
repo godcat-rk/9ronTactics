@@ -277,15 +277,15 @@ export function Game() {
 
   // ── Game screen ──────────────────────────────────────────────────
   return (
-    <div className="min-h-screen flex flex-col items-center gap-6 p-4 pt-8">
+    <div className="min-h-screen flex flex-col items-center gap-1.5 sm:gap-6 p-2 sm:p-4 sm:pt-8">
 
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <span className="text-3xl animate-dragon-glow">龍</span>
-        <span className="text-xl font-bold tracking-widest neon-text-red" style={{ fontFamily: 'serif' }}>
+      <div className="flex items-center gap-2 sm:gap-3">
+        <span className="text-2xl sm:text-3xl animate-dragon-glow">龍</span>
+        <span className="text-sm sm:text-xl font-bold tracking-widest neon-text-red" style={{ fontFamily: 'serif' }}>
           九龍戦術
         </span>
-        <span className="text-xs px-2 py-0.5 rounded" style={{ border: '1px solid #2a2a3a', color: '#444' }}>
+        <span className="text-xs px-1.5 py-0.5 rounded" style={{ border: '1px solid #2a2a3a', color: '#444' }}>
           {roomId}
         </span>
       </div>
@@ -310,7 +310,7 @@ export function Game() {
       <button
         onClick={handleSubmit}
         disabled={!selectedTile || submitted}
-        className="px-10 py-4 rounded font-bold tracking-widest text-base uppercase transition-all hover:scale-105 active:scale-95"
+        className="px-6 py-2 sm:px-10 sm:py-4 rounded font-bold tracking-widest text-xs sm:text-base uppercase transition-all hover:scale-105 active:scale-95"
         style={{
           background: 'transparent',
           border: `1px solid ${selectedTile && !submitted ? '#ffd700' : '#2a2a3a'}`,
